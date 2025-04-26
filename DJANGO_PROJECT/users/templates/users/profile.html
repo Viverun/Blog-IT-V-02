@@ -1,0 +1,279 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    /* Hide link previews */
+    a {
+        text-decoration: none;
+    }
+    a[title] {
+        position: relative;
+    }
+    a[title]:hover::after {
+        content: "";
+        display: none;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all links in the document
+        const links = document.querySelectorAll('a');
+
+        // For each link
+        links.forEach(link => {
+            // Remove any title attribute that might show on hover
+            if (link.hasAttribute('title')) {
+                link.removeAttribute('title');
+            }
+
+            // Add a blank rel attribute to prevent showing URL in status bar
+            link.setAttribute('rel', 'noopener');
+        });
+    });
+</script>
+<div class="content-section">
+  <!-- Profile Header -->
+  <div class="profile-header bg-light rounded p-4 mb-4 shadow-sm">
+    <div class="row align-items-center">
+      <div class="col-md-3 text-center mb-3 mb-md-0">
+        <div class="profile-image-container">
+          <img class="profile-image" src="{{ user.profile.image.url }}" alt="Profile Picture">
+          <div class="photo-overlay">
+            <small>Change photo</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="profile-info">
+          <h2 class="account-heading mb-2 d-flex align-items-center">
+            <span>{{ user.username }}</span>
+            <span class="badge badge-pill badge-primary ml-2">Active</span>
+          </h2>
+          <p class="text-secondary mb-2">
+            <i class="fas fa-envelope mr-2"></i>{{ user.email }}
+          </p>
+          <p class="text-muted">
+            <i class="fas fa-calendar-alt mr-2"></i>Member since {{ user.date_joined|date:"F d, Y" }}
+          </p>
+          <!-- Bio section -->
+          {% if user.profile.bio %}
+          <div class="user-bio mt-3 mb-2">
+            <p class="bio-text">{{ user.profile.bio }}</p>
+          </div>
+          {% endif %}
+          <div class="profile-stats d-flex flex-wrap mt-3">
+<!--            <div class="stat-item">-->
+<!--              <strong>0</strong>-->
+<!--              <div class="text-muted small">Posts</div>-->
+<!--            </div>-->
+<!--            <div class="stat-item">-->
+<!--              <strong>0</strong>-->
+<!--              <div class="text-muted small">Followers</div>-->
+<!--            </div>-->
+<!--            <div class="stat-item">-->
+<!--              <strong>0</strong>-->
+<!--              <div class="text-muted small">Following</div>-->
+<!--            </div>-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Edit Form -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <h4 class="card-title mb-4">
+        <i class="fas fa-user-edit mr-2 text-primary"></i>Edit Your Profile
+      </h4>
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+          <div class="col-12">
+            <legend class="border-bottom pb-2 mb-4">
+              <span class="text-muted small">PERSONAL INFORMATION</span>
+            </legend>
+          </div>
+
+          <!-- User Form -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-subtitle mb-3 text-muted">
+                  <i class="fas fa-id-card mr-2"></i>Account Details
+                </h5>
+                {{ u_form|crispy }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Form - Improved -->
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-subtitle mb-3 text-muted">
+                  <i class="fas fa-camera mr-2"></i>Profile Image & Bio
+                </h5>
+                <div class="current-image mb-3">
+                  <label class="font-weight-bold mb-2">Currently:</label>
+                  <div class="d-flex align-items-center">
+                    <div class="current-profile-image mr-3">
+<!--                      <img src="{{ user.profile.image.url }}" alt="Current profile image">-->
+                    </div>
+                    <small class="text-muted">{{ user.profile.image.name|default:"profile_pics/default.jpg" }}</small>
+                  </div>
+                </div>
+                <div class="custom-file-container">
+                  {{ p_form|crispy }}
+                </div>
+                <small class="text-muted mt-2 d-block">
+                  <i class="fas fa-info-circle mr-1"></i>For best results, upload a square image.
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group text-center mt-3">
+          <button class="btn btn-primary px-5" type="submit">
+            <i class="fas fa-save mr-2"></i>Save Changes
+          </button>
+          <a href="{% url 'blog-home' %}" class="btn btn-outline-secondary ml-2">
+            <i class="fas fa-times mr-2"></i>Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Profile image improvements */
+  .profile-image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border: 4px solid white;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .profile-image-container:hover .profile-image {
+    transform: scale(1.05);
+  }
+
+  .photo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(86, 104, 193, 0.75);
+    color: white;
+    padding: 6px 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .profile-image-container:hover .photo-overlay {
+    opacity: 1;
+  }
+
+  /* Bio styling */
+  .user-bio {
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 10px 15px;
+    border-left: 3px solid var(--primary-color);
+  }
+
+  .bio-text {
+    margin-bottom: 0;
+    font-style: italic;
+    color: var(--text-dark);
+  }
+
+  /* Current image preview */
+  .current-profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #eee;
+  }
+
+  .current-profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Stats styling */
+  .profile-stats {
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 8px;
+    padding: 8px;
+  }
+
+  .stat-item {
+    padding: 0 15px;
+    border-right: 1px solid #e0e0e0;
+    text-align: center;
+  }
+
+  .stat-item:last-child {
+    border-right: none;
+  }
+
+  /* Form styling improvements */
+  .custom-file-container .custom-file-input:lang(en)~.custom-file-label::after {
+    content: "Browse";
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  /* Profile header styling */
+  .profile-header {
+    border-left: 4px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at top right, rgba(86, 104, 193, 0.1), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Badge styling */
+  .badge-primary {
+    background-color: var(--primary-color);
+    font-weight: 400;
+    padding: 0.4em 0.8em;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 767px) {
+    .profile-stats {
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock content %}

@@ -1,0 +1,945 @@
+{% extends "blog/base.html" %}
+{% block content%}
+<style>
+    /* Navbar scroll behavior */
+    .navbar {
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .navbar-hidden {
+        transform: translateY(-100%);
+    }
+    
+    /* Hide link previews */
+    a {
+        text-decoration: none;
+    }
+    a[title] {
+        position: relative;
+    }
+    a[title]:hover::after {
+        content: "";
+        display: none;
+    }
+    
+    /* Post styling */
+    .post-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .post-container:hover {
+        transform: translateY(-5px);
+    }
+    
+    .post-header {
+        padding: 1.5rem 1.5rem 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .post-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .article-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .author-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .author-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 0.2rem;
+    }
+    
+    .post-date {
+        font-size: 0.85rem;
+        color: #777;
+        display: flex;
+        align-items: center;
+    }
+    
+    .post-date i {
+        margin-right: 0.3rem;
+        font-size: 0.8rem;
+    }
+    
+    .post-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .post-action-btn {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-update {
+        background-color: #f8f9fa;
+        color: #555;
+        border: 1px solid #ddd;
+    }
+    
+    .btn-update:hover {
+        background-color: #eff1f3;
+        color: #333;
+    }
+    
+    .btn-delete {
+        background-color: #fff0f0;
+        color: #dc3545;
+        border: 1px solid #ffcdd2;
+    }
+    
+    .btn-delete:hover {
+        background-color: #ffe5e5;
+        color: #c82333;
+    }
+    
+    .post-content-container {
+        padding: 2rem;
+    }
+    
+    .post-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #333;
+        line-height: 1.3;
+    }
+    
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Table styling for blog posts */
+    .post-content table {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        border-collapse: collapse;
+        border: 1px solid #dee2e6;
+    }
+    
+    .post-content table th,
+    .post-content table td {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        text-align: left;
+    }
+    
+    .post-content table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .post-content table tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .post-content table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+    
+    /* Fix spacing issues in lists and paragraphs */
+    .post-content p {
+        margin-bottom: 1rem;
+    }
+    
+    .post-content ul, 
+    .post-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+    
+    .post-content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Headings spacing */
+    .post-content h1, .post-content h2, 
+    .post-content h3, .post-content h4, 
+    .post-content h5, .post-content h6 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+    
+    /* Post tags styling */
+    .post-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .post-tag {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(145deg, #f0f8f0, #e0f0e0);
+        color: #4bb05c;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(75, 176, 92, 0.15);
+    }
+    
+    .post-tag i {
+        font-size: 0.75rem;
+        margin-right: 0.4rem;
+        opacity: 0.8;
+    }
+    
+    .post-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        background: linear-gradient(145deg, #e5f5e5, #d5ebd5);
+        color: #3d9e4f;
+    }
+    
+    /* Comments styling */
+    .comments-section {
+        margin-top: 3rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .comments-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+        position: relative;
+        padding-bottom: 0.6rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .comments-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius: 3px;
+    }
+    
+    .comment-count {
+        font-size: 1rem;
+        color: var(--gray-600);
+        margin-left: 10px;
+        font-weight: 500;
+        background-color: #f8f9fa;
+        padding: 0.2rem 0.6rem;
+        border-radius: 50px;
+    }
+    
+    .comment-form-container {
+        margin-bottom: 2rem;
+        background: linear-gradient(145deg, #f8f9fa, #ffffff);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+    
+    .comment-card {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--primary);
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    
+    .comment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .comment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    
+    .comment-author-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+        object-fit: cover;
+        border: 2px solid white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .comment-author-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .comment-date {
+        font-size: 0.8rem;
+        color: var(--gray-600);
+    }
+    
+    .comment-content {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--gray-700);
+        margin-bottom: 0.75rem;
+    }
+    
+    .comment-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+    
+    .comment-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .comment-action-btn {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        background: none;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .comment-action-btn:hover {
+        color: var(--primary);
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .comment-action-btn i {
+        margin-right: 0.35rem;
+        font-size: 0.8rem;
+    }
+    
+    .reply-form-container {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .reply-form-container.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .replies-container {
+        margin-left: 2.5rem;
+        padding-left: 1rem;
+        border-left: 1px dashed rgba(0, 0, 0, 0.1);
+    }
+    
+    .reply-card {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 2px solid var(--accent);
+    }
+    
+    .comment-form-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        color: white;
+        border: none;
+        padding: 0.625rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .comment-form-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .comment-form-btn i {
+        margin-right: 0.5rem;
+    }
+    
+    .no-comments-message {
+        text-align: center;
+        padding: 2rem;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-radius: 16px;
+        color: var(--gray-600);
+    }
+    
+    .no-comments-message i {
+        font-size: 2rem;
+        color: var(--gray-400);
+        margin-bottom: 1rem;
+    }
+    
+    .alert-login {
+        background-color: #f8f9fa;
+        border-left: 4px solid var(--primary);
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .alert-login i {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+    
+    .alert-login a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    /* Enhanced typography for post content */
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .post-content p:first-of-type::first-letter {
+        float: left;
+        font-size: 3em;
+        line-height: 0.8;
+        margin-right: 0.1em;
+        padding-top: 0.1em;
+        font-weight: bold;
+        color: var(--primary);
+    }
+    
+    .post-content h2, .post-content h3 {
+        margin-top: 1.8rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #222;
+    }
+    
+    .post-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin: 1.5rem 0;
+        transition: transform 0.3s ease;
+    }
+    
+    .post-content img:hover {
+        transform: scale(1.02);
+    }
+    
+    .post-content blockquote {
+        margin: 1.5rem 0;
+        padding: 1rem 1.5rem;
+        border-left: 4px solid var(--primary);
+        background: linear-gradient(145deg, #f9f9f9, #f0f0f0);
+        border-radius: 8px;
+        font-style: italic;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Social sharing options */
+    .social-sharing {
+        display: flex;
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.1);
+        align-items: center;
+    }
+    
+    .share-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .share-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    
+    .share-facebook {
+        background: #3b5998;
+    }
+    
+    .share-twitter {
+        background: #1da1f2;
+    }
+    
+    .share-linkedin {
+        background: #0077b5;
+    }
+    
+    .share-email {
+        background: #555;
+    }
+    
+    /* Estimated reading time */
+    .reading-time {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(0,0,0,0.03);
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    .reading-time i {
+        margin-right: 0.5rem;
+        color: var(--primary);
+    }
+    
+    /* Improved container */
+    .main-container {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    /* Featured content section above the post */
+    .featured-content {
+        background: linear-gradient(145deg, #f8f9fa, #edf2f7);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .featured-tag {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #4a76a8, #5f85bc);
+        color: white;
+        font-weight: 500;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .featured-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Related posts section at the bottom */
+    .related-posts {
+        margin-top: 3rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .related-posts-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+        position: relative;
+        padding-bottom: 0.6rem;
+    }
+    
+    .related-posts-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius: 3px;
+    }
+    
+    .related-posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .related-post-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+    
+    .related-post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .related-post-image {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+    
+    .related-post-content {
+        padding: 1.25rem;
+    }
+    
+    .related-post-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .related-post-excerpt {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .related-post-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #777;
+    }
+    
+    @media (max-width: 767.98px) {
+        .post-container {
+            border-radius: 12px;
+        }
+        
+        .post-title {
+            font-size: 1.5rem;
+        }
+        
+        .social-sharing {
+            flex-wrap: wrap;
+        }
+    }
+
+    /* Username and admin badge styling override */
+    .username-box {
+        color: #ffffff !important; /* Force white text color */
+    }
+    
+    .username-box:hover {
+        color: #ffffff !important; /* Ensure text remains white on hover */
+    }
+    
+    .admin-badge {
+        color: #ffffff !important; /* Force white text color */
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+</style>
+
+<div class="main-container">
+    <!-- Main Post Content -->
+    <div class="post-container">
+        <div class="post-header">
+            <div class="post-author">
+                <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="{{ object.author }}'s profile">
+                <div class="author-info">
+                    {% if user.is_authenticated and object.author == user %}
+                    <a class="username-box" href="{% url 'profile' %}">{{ object.author }}
+                        {% if object.author.is_staff %}<span class="admin-badge">admin</span>{% endif %}
+                    </a>
+                    {% else %}
+                    <a class="username-box" href="{% url 'user-profile' object.author.username %}">{{ object.author }}
+                        {% if object.author.is_staff %}<span class="admin-badge">admin</span>{% endif %}
+                    </a>
+                    {% endif %}
+                    <div class="post-date">
+                        <i class="far fa-calendar-alt"></i> {{ object.date_posted|date:"F d, Y" }}
+                    </div>
+                </div>
+            </div>
+            
+            {% if object.author == user %}
+            <div class="post-actions">
+                <a class="post-action-btn btn-update" href="{% url 'post-update' object.id %}">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a class="post-action-btn btn-delete" href="{% url 'post-delete' object.id %}">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="post-content-container">
+            <h1 class="post-title">{{ object.title }}</h1>
+            
+            <!-- Post tags display -->
+            {% if object.tags.all %}
+            <div class="post-tags mb-3">
+                {% for tag in object.tags.all %}
+                <a href="{% url 'tag-posts' tag.name %}" class="post-tag">
+                    <i class="fas fa-tag"></i> {{ tag.name }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Reading time estimation -->
+            <div class="reading-time">
+                <i class="far fa-clock"></i> 
+                {% with word_count=object.content|striptags|wordcount %}
+                    {% widthratio word_count 200 1 %} min read
+                {% endwith %}
+            </div>
+            
+            <div class="post-content">{{ object.content|safe }}</div>
+            
+            <!-- Social Sharing -->
+            <div class="social-sharing">
+                <p class="me-3 mb-0"><strong>Share this article:</strong></p>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn share-facebook" title="Share on Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ object.title|urlencode }}" target="_blank" class="share-btn share-twitter" title="Share on Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ object.title|urlencode }}" target="_blank" class="share-btn share-linkedin" title="Share on LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="mailto:?subject={{ object.title|urlencode }}&body=Read this article: {{ request.build_absolute_uri }}" class="share-btn share-email" title="Share via Email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3 class="comments-title">
+            <i class="far fa-comments me-2"></i> Comments
+            <span class="comment-count">
+                {{ object.comments.count }}
+            </span>
+        </h3>
+        
+        {% if user.is_authenticated %}
+        <!-- Comment Form -->
+        <div class="comment-form-container">
+            <form method="POST" action="{% url 'add-comment' object.id %}">
+                {% csrf_token %}
+                {{ comment_form }}
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="comment-form-btn">
+                        <i class="far fa-paper-plane"></i> Post Comment
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="alert-login">
+            <i class="fas fa-info-circle"></i>
+            <div>Please <a href="{% url 'login' %}">login</a> to leave a comment.</div>
+        </div>
+        {% endif %}
+        
+        <!-- Comments List -->
+        {% if object.comments.exists %}
+            {% for comment in object.comments.all %}
+                {% if not comment.parent %} <!-- Only show top-level comments -->
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <img class="comment-author-img" src="{{ comment.author.profile.image.url }}" alt="{{ comment.author }}'s profile image">
+                        <div>
+                            <a class="username-box" href="{% url 'user-profile' comment.author.username %}">{{ comment.author.username }}
+                                {% if comment.author.is_staff %}<span class="admin-badge">admin</span>{% endif %}
+                            </a>
+                            <div class="comment-date">{{ comment.date_posted|date:"F d, Y" }} at {{ comment.date_posted|time:"H:i" }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-content">
+                        {{ comment.content }}
+                    </div>
+                    
+                    <div class="comment-footer">
+                        <div class="comment-actions">
+                            {% if user.is_authenticated %}
+                            <button class="comment-action-btn reply-toggle-btn" data-comment-id="{{ comment.id }}">
+                                <i class="fas fa-reply"></i> Reply
+                            </button>
+                            {% endif %}
+                            
+                            {% if user.is_authenticated and comment.author == user %}
+                            <form method="POST" action="{% url 'delete-comment' comment.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="comment-action-btn text-danger" onclick="return confirm('Are you sure you want to delete this comment?');">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                
+                        <!-- Reply Form -->
+                        {% if user.is_authenticated %}
+                        <div id="reply-form-{{ comment.id }}" class="reply-form-container">
+                            <form method="POST" action="{% url 'add-reply' object.id comment.id %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <textarea name="content" class="form-control" rows="3" placeholder="Write your reply here..." required style="border-radius: 12px; background-color: #f8f9fa; padding: 12px;"></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button type="submit" class="comment-form-btn">
+                                        <i class="far fa-paper-plane"></i> Post Reply
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Replies -->
+                        {% if comment.replies.exists %}
+                        <div class="replies-container mt-3">
+                            {% for reply in comment.replies.all %}
+                            <div class="reply-card">
+                                <div class="comment-header">
+                                    <img class="comment-author-img" src="{{ reply.author.profile.image.url }}" alt="{{ reply.author }}'s profile image">
+                                    <div>
+                                        <a class="username-box" href="{% url 'user-profile' reply.author.username %}">{{ reply.author.username }}
+                                            {% if reply.author.is_staff %}<span class="admin-badge">admin</span>{% endif %}
+                                        </a>
+                                        <div class="comment-date">{{ reply.date_posted|date:"F d, Y" }} at {{ reply.date_posted|time:"H:i" }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="comment-content">
+                                    {{ reply.content }}
+                                </div>
+                                
+                                {% if user.is_authenticated and reply.author == user %}
+                                <div class="comment-footer">
+                                    <div class="comment-actions">
+                                        <form method="POST" action="{% url 'delete-comment' reply.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="comment-action-btn text-danger" onclick="return confirm('Are you sure you want to delete this reply?');">
+                                                <i class="fas fa-trash-alt"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <!-- No Comments Message -->
+                <div class="no-comments-message">
+                    <i class="far fa-comment-dots d-block"></i>
+                    <p>No comments yet. Be the first to share your thoughts!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Right sidebar placeholder - kept for layout structure -->
+    <div class="post-sidebar">
+        {% block sidebar %}{% endblock %}
+    </div>
+</div>
+{% endblock content %}

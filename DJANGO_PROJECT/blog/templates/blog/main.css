@@ -1,0 +1,299 @@
+:root {
+  --brand: #5A48FA;
+  --brand-hover: #4734c4;
+  --accent: #ff6584;
+  --bg-main: #f5f6fa;
+  --bg-card: #fff;
+  --bg-footer: #22284d;
+  --text-main: #23242a;
+  --text-muted: #888fa8;
+  --radius: 1rem;
+  --shadow: 0 2px 12px rgba(90,72,250,0.07);
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+/* GENERAL */
+body {
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Inter', Arial, sans-serif;
+  min-height: 100vh;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+h1,h2,h3,h4,h5 {
+  font-weight: 700;
+  color: var(--brand);
+}
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; }
+a {
+  color: var(--brand);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover, a:focus {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* NAVBAR */
+.site-header {
+  box-shadow: var(--shadow);
+}
+.navbar {
+  background: var(--brand) !important;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding-bottom: .2rem;
+}
+.navbar-brand {
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #fff !important;
+  letter-spacing: 1px;
+}
+.navbar-nav .nav-link {
+  color: #f7f7ff !important;
+  margin-right: 0.9rem;
+  font-weight: 500;
+  border-radius: .5rem;
+  padding: .35rem 1rem;
+  font-size: 1.05rem;
+}
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+  color: var(--accent) !important;
+  background: rgba(255,255,255,0.09);
+}
+
+/* MAIN CONTENT */
+main.container {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2.1rem 1.6rem 1.8rem;
+  margin-top: 2.5rem;
+  margin-bottom: 3rem;
+}
+.row {
+  gap: 1.6rem 0;
+}
+
+/* CONTENT SECTIONS / CARDS */
+.content-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 8px rgba(33,30,56,0.07);
+  padding: 1rem 1.2rem 1.3rem;
+  margin-bottom: 2.2rem;
+  border: none;
+}
+
+/* ALERTS */
+.alert {
+  border-radius: .7rem;
+  font-size: 1.06rem;
+  margin-bottom: 1.4rem;
+  box-shadow: 0 2px 12px rgba(255,101,132,0.06);
+  border: none;
+}
+
+/* FORMS */
+.input-group input,
+.form-control, input, textarea, select {
+  border-radius: .6rem !important;
+  border: 1px solid #d2d6ed;
+  padding: .7rem .95rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  box-shadow: none;
+  font-size: 1.07rem;
+}
+.input-group input:focus,
+.form-control:focus, input:focus, textarea:focus, select:focus {
+  border: 1.6px solid var(--brand);
+  background: #ecebff47;
+}
+
+/* BUTTONS */
+.btn-primary,
+input[type="submit"].btn.btn-primary {
+  background: var(--brand);
+  border: none;
+  border-radius: .7rem;
+  padding: .62rem 1.5rem;
+  font-weight: 700;
+  font-size: 1.08rem;
+  letter-spacing: .3px;
+  transition: background var(--transition), box-shadow var(--transition), color var(--transition);
+  box-shadow: 0 3px 9px rgba(90,72,250,0.10);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(255,101,132,0.13);
+}
+
+/* FOOTER */
+footer {
+  background: var(--bg-footer);
+  color: #e0e4fd;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  margin-top: 5rem;
+  padding: 2.7rem 0 1.2rem;
+  box-shadow: 0 -1px 14px rgba(76,58,187,0.07);
+}
+footer h5 {
+  font-size: 1.13rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: .8rem;
+}
+footer a {
+  color: #aab0f7;
+  transition: color var(--transition);
+  text-decoration: none;
+}
+footer a:hover, footer a:focus {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.social-icons a {
+  font-size: 1.3rem;
+  margin-right: .7rem;
+  color: #fff;
+  transition: color var(--transition);
+}
+.social-icons a:hover {
+  color: var(--accent);
+}
+.list-unstyled li {
+  margin-bottom: .5em;
+}
+
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  border-radius: 4px;
+}
+
+/* RESPONSIVE TWEAKS */
+@media (max-width: 991px) {
+  main.container, .content-section {
+    padding: 1rem .8rem;
+  }
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}
+
+/* POST CARDS STYLING */
+article.media.content-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+  border: none;
+  overflow: hidden;
+}
+
+article.media.content-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(90,72,250,0.08);
+}
+
+.article-img {
+  width: 65px;
+  height: 65px;
+  margin-right: 16px;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.article-metadata {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.article-metadata a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.article-metadata a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.article-title {
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.article-title a {
+  color: var(--text-main);
+  transition: color var(--transition);
+  text-decoration: none;
+}
+
+.article-title a:hover {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.article-content {
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-height: 1.6;
+}
+
+/* Category/Tag pills (if you add them later) */
+.post-category {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  background: var(--bg-main);
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  margin-right: 0.5rem;
+  color: var(--brand);
+  font-weight: 500;
+}
+
+/* Read more link */
+.read-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.read-more:hover {
+  color: var(--accent);
+}
+
+.read-more i {
+  font-size: 0.8rem;
+  transition: transform var(--transition);
+}
+
+.read-more:hover i {
+  transform: translateX(4px);
+}

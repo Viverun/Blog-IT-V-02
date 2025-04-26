@@ -1,0 +1,961 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    /* Hide link previews */
+    a {
+        text-decoration: none;
+    }
+    a[title] {
+        position: relative;
+    }
+    a[title]:hover::after {
+        content: "";
+        display: none;
+    }
+    
+    /* Enhanced Form UI - Overall styling with increased width */
+    .content-section {
+        max-width: 1100px; /* Increased from 800px */
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.3s ease;
+        border-radius: 16px !important;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    .card-body {
+        padding: 2.5rem !important;
+    }
+    
+    legend {
+        position: relative;
+        padding-left: 1.25rem;
+        margin-bottom: 2rem !important;
+        font-weight: 700;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    
+    legend::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #000;
+        border-radius: 4px;
+    }
+    
+    /* Title field styling */
+    #div_id_title {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        border-left: 4px solid #000;
+        position: relative;
+    }
+    
+    #div_id_title label {
+        font-weight: 600;
+        color: #222;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+    }
+    
+    #div_id_title label::before {
+      content: '\f304';
+      font-family: 'Font Awesome 5 Free';
+        margin-right: 10px;
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+    
+    /* Ensure no other pseudo-elements are affecting the label */
+    #div_id_title label::after {
+        display: none;
+    }
+    
+    #div_id_title input {
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        padding: 1rem;
+        font-size: 1.2rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    #div_id_title input:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+    }
+
+    #div_id_title label .asteriskField,
+    #div_id_content label .asteriskField {
+        display: none !important;
+    }
+
+    
+    /* Description field styling - already exists but adding character display */
+    #div_id_description {
+        background: linear-gradient(145deg, #f8f9fa, #ffffff);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        border-left: 4px solid #444;
+        position: relative;
+    }
+    
+    #div_id_description label {
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+    }
+    
+    #div_id_description label::before {
+        content: '\f0eb';
+        font-family: 'Font Awesome 5 Free';
+        margin-right: 10px;
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+    
+    #div_id_description .form-text {
+        background-color: rgba(0, 0, 0, 0.04);
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-style: italic;
+        margin-top: 0.75rem;
+        color: #555;
+        display: flex;
+        align-items: center;
+    }
+    
+    #div_id_description .form-text::before {
+        content: '\f05a';  /* Info icon */
+        font-family: 'Font Awesome 5 Free';
+        margin-right: 10px;
+        font-weight: 900;
+        color: #555;
+    }
+      
+    #div_id_description textarea.form-control {
+      min-height: 90px !important; /* Increased height */
+      height: auto !important;
+      padding: 0.75rem 1rem !important;
+      font-size: 1rem !important;
+      resize: vertical;
+      border-radius: 10px;
+    }
+
+    #div_id_description textarea:focus {
+        border-color: #444;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Content field styling */
+    #div_id_content {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        border-left: 4px solid #000;
+        position: relative;
+    }
+    
+    #div_id_content label {
+        font-weight: 600;
+        color: #222;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+    }
+    
+    #div_id_content label::before {
+        content: '\f044';  /* Font Awesome pen icon */
+        font-family: 'Font Awesome 5 Free';
+        margin-right: 10px;
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+    
+    #div_id_content textarea {
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        padding: 1rem;
+        min-height: 450px; /* Increased height */
+        transition: all 0.2s ease;
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+    
+    #div_id_content textarea:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Enhanced submit button */
+    .form-submit-btn {
+        background: #000;
+        border: none;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .form-submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background-color: #333;
+        transition: width 0.3s ease;
+        z-index: -1;
+        border-radius: 10px;
+    }
+    
+    .form-submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .form-submit-btn:hover::before {
+        width: 100%;
+    }
+    
+    .form-submit-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    .form-submit-btn i {
+        margin-right: 0.8rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .form-submit-btn:hover i {
+        transform: translateX(5px);
+    }
+    
+    /* Character counter */
+    .char-counter {
+        font-size: 0.85rem;
+        color: #777;
+        text-align: right;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .char-counter.warning {
+        color: #f59e0b;
+    }
+    
+    .char-counter.danger {
+        color: #ef4444;
+    }
+    
+    /* Form header animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .form-header {
+        animation: fadeIn 0.6s ease;
+        margin-bottom: 2.5rem !important;
+    }
+    
+    .form-header i {
+        font-size: 3rem;
+        color: #000;
+        display: block;
+        margin: 0 auto 1.2rem;
+        transition: transform 0.5s ease;
+    }
+    
+    .form-header:hover i {
+        transform: rotate(15deg);
+    }
+    
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        background: linear-gradient(90deg, #000, #444);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .form-header p {
+        font-size: 1.1rem;
+        color: #666;
+    }
+    
+    /* Target just this textarea */
+    #id_description {
+        height: 90px !important;  /* Increased from 70px */
+        min-height: 90px !important;
+        max-height: 150px;
+        resize: vertical;
+    }
+
+    /* Tags field styling */
+    #div_id_tags {
+        background: linear-gradient(145deg, #f8f9fa, #ffffff);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        border-left: 4px solid #555; /* Monochrome theme */
+        position: relative;
+    }
+    
+    #div_id_tags label {
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+    }
+
+    #div_id_tags label::before {
+        content: '\f02b';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 10px;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+
+    
+    /* New tags field styling */
+    #div_id_new_tags {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        border-left: 4px solid #555; /* Monochrome theme */
+        position: relative;
+    }
+    
+    #div_id_new_tags label {
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+    }
+    
+    #div_id_new_tags label::before {
+        content: '\f067'; /* Font Awesome plus icon */
+        font-family: 'Font Awesome 5 Free';
+        margin-right: 10px;
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+    
+    #div_id_new_tags input {
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+    }
+    
+    #div_id_new_tags input:focus {
+        border-color: #555;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+    }
+    
+    #div_id_new_tags .form-text,
+    #div_id_tags .form-text {
+        background-color: rgba(0, 0, 0, 0.04);
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-style: italic;
+        margin-top: 0.75rem;
+        color: #555;
+        display: flex;
+        align-items: center;
+    }
+    
+    #div_id_new_tags .form-text::before,
+    #div_id_tags .form-text::before {
+        content: '\f05a';  /* Info icon */
+        font-family: 'Font Awesome 5 Free';
+        margin-right: 10px;
+        font-weight: 900;
+        color: #555;
+    }
+    
+    /* Custom tag checkbox styling */
+    .tag-checkbox-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-top: 1.2rem;
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .tag-checkbox-list li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .tag-checkbox-list input[type="checkbox"] {
+        display: none;
+    }
+    
+    .tag-checkbox-list label {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        color: #495057;
+        margin: 0;
+    }
+    
+    .tag-checkbox-list input[type="checkbox"]:checked + label {
+        background: #333;
+        color: white;
+        border-color: #333;
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .tag-checkbox-list label:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .tag-checkbox-list input[type="checkbox"]:checked + label:hover {
+        background: #000;
+    }
+    
+    /* Tag count badge */
+    .tag-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.08);
+        color: #333;
+        border-radius: 50px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 0.7rem;
+        transition: all 0.2s ease;
+    }
+    
+    /* No tags message */
+    .no-tags-message {
+        padding: 1.2rem;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 10px;
+        font-style: italic;
+        color: #555;
+        text-align: center;
+        margin: 1.2rem 0;
+        font-size: 0.95rem;
+    }
+
+    /* ADD THE SUMMERNOTE CSS HERE, RIGHT BEFORE THE CLOSING STYLE TAG */
+    /* Summernote UI Enhancement */
+    .note-editor.note-frame {
+      border: 1px solid rgba(0, 0, 0, 0.09) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03) !important;
+      overflow: hidden;
+      margin-top: 15px !important;
+      width: 100% !important;
+    }
+
+    .note-toolbar {
+      background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+      padding: 12px 15px !important;
+      border-top-left-radius: 12px !important;
+      border-top-right-radius: 12px !important;
+    }
+
+    .note-btn-group {
+      margin: 3px !important;
+    }
+
+    .note-btn {
+      border-radius: 6px !important;
+      padding: 7px 12px !important;
+      background: white !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .note-btn:hover {
+      background: #333 !important;
+      color: white !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .note-current-fontname, 
+    .note-current-fontsize {
+      font-family: inherit !important;
+    }
+
+    .note-editor .note-editing-area .note-editable {
+      background: white !important;
+      color: #212529 !important;
+      padding: 25px 30px !important;
+      min-height: 450px !important;
+      font-family: inherit !important;
+      line-height: 1.7 !important;
+      font-size: 1.05rem !important;
+    }
+
+    .note-status-output {
+      display: none !important;
+    }
+
+    .note-editor .note-statusbar {
+      background: #f8f9fa !important;
+      border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+      height: 28px !important;
+    }
+
+    .note-resizebar {
+      height: 12px !important;
+      width: 100% !important;
+      cursor: ns-resize !important;
+    }
+
+    .note-resizebar-active {
+      border-top-color: #000 !important;
+    }
+
+    /* Fix dropdown menus */
+    .note-dropdown-menu {
+      border: none !important;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+      border-radius: 10px !important;
+      padding: 12px !important;
+    }
+
+    .note-dropdown-item {
+      padding: 8px 15px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .note-dropdown-item:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* Modal styling */
+    .note-modal-content {
+      border-radius: 16px !important;
+      border: none !important;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .note-modal-header {
+      border-top-left-radius: 16px !important;
+      border-top-right-radius: 16px !important;
+      background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
+      padding: 15px 20px !important;
+    }
+
+    .note-modal-title {
+      font-size: 1.3rem !important;
+      font-weight: 700 !important;
+      color: #333 !important;
+    }
+
+    .note-modal-footer {
+      border-bottom-left-radius: 16px !important;
+      border-bottom-right-radius: 16px !important;
+      background-color: #f8f9fa !important;
+      padding: 15px 20px !important;
+    }
+    
+    .note-modal-footer .btn {
+      border-radius: 8px !important;
+      padding: 8px 16px !important;
+      font-weight: 600 !important;
+    }
+    
+    .note-modal-footer .btn-primary {
+      background-color: #000 !important;
+      border-color: #000 !important;
+    }
+
+    .note-dimension-display {
+      color: #495057 !important;
+    }
+
+    /* Highlighted text and codeview styling */
+    .note-codable {
+      background-color: #272822 !important;
+      color: #f8f8f2 !important;
+      border-radius: 0 !important;
+    }
+
+    /* Focus styling */
+    .note-editor.note-frame.focus {
+      border-color: #000 !important;
+      box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .content-section {
+        max-width: 900px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .content-section {
+        padding: 0 1rem;
+      }
+      
+      .card-body {
+        padding: 1.8rem !important;
+      }
+      
+      .form-header h2 {
+        font-size: 1.8rem;
+      }
+      
+      #div_id_title input {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+      }
+      
+      .note-editor .note-editing-area .note-editable {
+        padding: 20px !important;
+        min-height: 350px !important;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .form-header i {
+        font-size: 2.2rem;
+      }
+      
+      .form-header h2 {
+        font-size: 1.6rem;
+      }
+      
+      #div_id_title,
+      #div_id_description,
+      #div_id_content,
+      #div_id_tags,
+      #div_id_new_tags {
+        padding: 1.2rem;
+      }
+      
+      .note-toolbar {
+        padding: 8px !important;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+      
+      .note-btn-group {
+        margin: 2px !important;
+      }
+    }
+
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all links in the document
+        const links = document.querySelectorAll('a');
+
+        // For each link
+        links.forEach(link => {
+            // Remove any title attribute that might show on hover
+            if (link hasAttribute('title')) {
+                link.removeAttribute('title');
+            }
+
+            // Add a blank rel attribute to prevent showing URL in status bar
+            link.setAttribute('rel', 'noopener');
+        });
+        
+        // Add character counter for description field
+        const descField = document.querySelector('#id_description');
+        if (descField) {
+            // Create counter element
+            const counter = document.createElement('div');
+            counter.className = 'char-counter';
+            counter.textContent = '0/300 characters';
+            
+            // Insert counter after the textarea
+            descField.parentNode.insertBefore(counter, descField.nextSibling);
+            
+            // Update counter on input
+            descField.addEventListener('input', function() {
+                const count = this.value.length;
+                counter.textContent = `${count}/300 characters`;
+                
+                // Add warning classes based on length
+                if (count > 250) {
+                    counter.className = 'char-counter danger';
+                } else if (count > 200) {
+                    counter.className = 'char-counter warning';
+                } else {
+                    counter.className = 'char-counter';
+                }
+            });
+            
+            // Trigger once to initialize
+            descField.dispatchEvent(new Event('input'));
+        }
+        
+        // Add counter for title field
+        const titleField = document.querySelector('#id_title');
+        if (titleField) {
+            const counter = document.createElement('div');
+            counter.className = 'char-counter';
+            counter.textContent = '0/100 characters';
+            
+            titleField.parentNode.insertBefore(counter, titleField.nextSibling);
+            
+            titleField.addEventListener('input', function() {
+                const count = this.value.length;
+                counter.textContent = `${count}/100 characters`;
+                
+                if (count > 85) {
+                    counter.className = 'char-counter danger';
+                } else if (count > 70) {
+                    counter.className = 'char-counter warning';
+                } else {
+                    counter.className = 'char-counter';
+                }
+            });
+            
+            titleField.dispatchEvent(new Event('input'));
+        }
+        
+        // Add focus effects
+        const formFields = document.querySelectorAll('input, textarea');
+        formFields.forEach(field => {
+            field.addEventListener('focus', function() {
+                this.closest('.form-group').classList.add('field-focus');
+            });
+            
+            field.addEventListener('blur', function() {
+                this.closest('.form-group').classList.remove('field-focus');
+            });
+        });
+
+        // Enhance tag checkboxes
+        const tagContainer = document.querySelector('#div_id_tags');
+        if (tagContainer) {
+            const checkboxes = tagContainer.querySelectorAll('input[type="checkbox"]');
+            const checkboxList = tagContainer.querySelector('div:not(.form-text)');
+            
+            if (checkboxList) {
+                // Add tag count
+                const tagCount = document.createElement('span');
+                tagCount.className = 'tag-count';
+                tagCount.textContent = '0 selected';
+                tagContainer.querySelector('label').appendChild(tagCount);
+                
+                // Add no tags message if there are no tags
+                if (checkboxes.length === 0) {
+                    const noTagsMsg = document.createElement('div');
+                    noTagsMsg.className = 'no-tags-message';
+                    noTagsMsg.innerHTML = '<i class="fas fa-info-circle mr-2"></i> No tags available yet. Create your first tags below!';
+                    checkboxList.appendChild(noTagsMsg);
+                }
+                
+                // Update tag count when checkboxes change
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const selected = tagContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+                        tagCount.textContent = selected + ' selected';
+                    });
+                });
+                
+                // Trigger once to initialize
+                const selected = tagContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+                tagCount.textContent = selected + ' selected';
+            }
+        }
+        
+        // Fix Summernote editor and handle its initialization
+        const contentField = document.querySelector('#div_id_content');
+        if (contentField) {
+            // Monitor for Summernote initialization
+            const observer = new MutationObserver(function(mutations) {
+                const noteEditor = contentField.querySelector('.note-editor');
+                if (noteEditor) {
+                    // Summernote has been initialized
+                    observer.disconnect();
+                    
+                    // Fix any styling issues with the note-editor
+                    noteEditor.style.marginTop = '10px';
+                    
+                    // Fix any iframes inside summernote
+                    const iframes = noteEditor.querySelectorAll('iframe');
+                    iframes.forEach(iframe => {
+                        iframe.style.width = '100%';
+                        iframe.style.border = 'none';
+                        iframe.style.minHeight = '400px';
+                    });
+                    
+                    // Add click handler to enhance buttons
+                    const noteButtons = noteEditor.querySelectorAll('.note-btn');
+                    noteButtons.forEach(btn => {
+                        // Remove title attributes to prevent default tooltips
+                        if (btn.hasAttribute('title')) {
+                            btn.removeAttribute('title');
+                        }
+                    });
+                    
+                    // Add custom focus handler
+                    const noteEditable = noteEditor.querySelector('.note-editable');
+                    if (noteEditable) {
+                        noteEditable.addEventListener('focus', function() {
+                            noteEditor.classList.add('focus');
+                        });
+                        
+                        noteEditable.addEventListener('blur', function() {
+                            noteEditor.classList.remove('focus');
+                        });
+                    }
+                }
+            });
+            
+            // Start observing content field for Summernote initialization
+            observer.observe(contentField, { childList: true, subtree: true });
+        }
+    });
+</script>
+
+<div class="content-section">
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <div class="form-header text-center mb-4">
+        <i class="fas fa-pen-fancy"></i>
+        <h2>Create Your Post</h2>
+        <p class="text-muted">Share your knowledge and insights with the community</p>
+      </div>
+      <form method="POST" class="registration-form" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <fieldset class="form-group">
+          <legend class="border-bottom pb-2 mb-4">
+            <span class="text-muted">POST DETAILS</span>
+          </legend>
+
+          {{ form.media }}
+
+          <!-- Main fields -->
+          <div id="div_id_title" class="form-group">
+            <label for="id_title">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+              <div class="alert alert-danger mt-2">{{ form.title.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div id="div_id_description" class="form-group">
+            <label for="id_description">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% if form.description.help_text %}
+              <small class="form-text text-muted">{{ form.description.help_text }}</small>
+            {% endif %}
+            {% if form.description.errors %}
+              <div class="alert alert-danger mt-2">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div id="div_id_content" class="form-group">
+            <label for="id_content">{{ form.content.label }}</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+              <div class="alert alert-danger mt-2">{{ form.content.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Tags section -->
+          <div id="div_id_tags" class="form-group">
+            <label for="id_tags">{{ form.tags.label }}</label>
+            <div class="tag-checkbox-list">
+              {{ form.tags }}
+            </div>
+            {% if form.tags.help_text %}
+              <small class="form-text text-muted">{{ form.tags.help_text }}</small>
+            {% endif %}
+            {% if form.tags.errors %}
+              <div class="alert alert-danger mt-2">{{ form.tags.errors }}</div>
+            {% endif %}
+          </div>
+
+        <div id="div_id_new_tags" class="form-group">
+          <label for="id_new_tags">Add New Tags</label>
+          {{ form.new_tags }}
+          {% if form.new_tags.help_text %}
+            <small class="form-text text-muted">{{ form.new_tags.help_text }}</small>
+          {% endif %}
+        </div>
+      </fieldset>
+
+      <div class="form-group mt-4">
+        <button class="form-submit-btn" type="submit">
+          <i class="fas fa-paper-plane"></i> Publish Post
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+{% endblock content%}

@@ -1,0 +1,596 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<style>
+    /* Hide link previews */
+    a {
+        text-decoration: none;
+    }
+    a[title] {
+        position: relative;
+    }
+    a[title]:hover::after {
+        content: "";
+        display: none;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all links in the document
+        const links = document.querySelectorAll('a');
+
+        // For each link
+        links.forEach(link => {
+            // Remove any title attribute that might show on hover
+            if (link.hasAttribute('title')) {
+                link.removeAttribute('title');
+            }
+
+            // Add a blank rel attribute to prevent showing URL in status bar
+            link.setAttribute('rel', 'noopener');
+        });
+    });
+</script>
+<div class="content-section">
+  <!-- Profile Header -->
+  <div class="profile-header bg-light rounded p-4 mb-4 shadow-sm">
+    <div class="row align-items-center">
+      <div class="col-md-3 text-center mb-3 mb-md-0">
+        <div class="profile-image-container">
+          <img class="profile-image" src="{{ profile_user.profile.image.url }}" alt="Profile Picture">
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="profile-info">
+          <h2 class="account-heading mb-2 d-flex align-items-center">
+            <span class="username-box">{{ profile_user.username }}
+              {% if profile_user.is_staff %}<span class="admin-badge">admin</span>{% endif %}
+            </span>
+          </h2>
+          <p class="text-secondary mb-2">
+            <i class="fas fa-envelope mr-2"></i>{{ profile_user.email }}
+          </p>
+          <p class="text-muted">
+            <i class="fas fa-calendar-alt mr-2"></i>Member since {{ profile_user.date_joined|date:"F d, Y" }}
+          </p>
+          <!-- Bio section -->
+          {% if profile_user.profile.bio %}
+          <div class="user-bio mt-3 mb-2">
+            <p class="bio-text">{{ profile_user.profile.bio }}</p>
+          </div>
+          {% endif %}
+          <div class="profile-stats d-flex flex-wrap mt-3">
+            <div class="stat-item">
+              <strong>{{ user_posts.count }}</strong>
+              <div class="text-muted small">Posts</div>
+            </div>
+            <div class="stat-item">
+              <strong>{{ profile_user.date_joined|timesince }}</strong>
+              <div class="text-muted small">Member For</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Stats Section -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <h4 class="card-title mb-4">
+        <i class="fas fa-chart-bar mr-2 text-primary"></i>User Statistics
+      </h4>
+
+      <div class="user-stats">
+        <div class="stat-box">
+          <div class="stat-value">{{ user_posts.count }}</div>
+          <div class="stat-label">Total Posts</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-value date-format">{{ profile_user.date_joined|date:"M Y" }}</div>
+          <div class="stat-label">Joined</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-value time-since">
+            {% if user_posts.count > 0 %}
+              {{ user_posts.0.date_posted|date:"M d" }}
+            {% else %}
+              -
+            {% endif %}
+          </div>
+          <div class="stat-label">Last Post</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-value">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="stat-label">
+            {% if profile_user.is_staff %}Admin{% else %}Member{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User's Posts Section -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <h4 class="card-title mb-4">
+        <i class="fas fa-file-alt mr-2 text-primary"></i>{{ profile_user.username }}'s Posts
+      </h4>
+
+      {% if user_posts %}
+        <div class="user-posts">
+          {% for post in user_posts %}
+            <div class="post-card mb-4">
+              <div class="post-header">
+                <h5 class="post-title">
+                  <a href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+                </h5>
+                <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+              </div>
+              <div class="post-content">
+                <p>{{ post.content|truncatechars:150 }}</p>
+              </div>
+              <div class="post-footer">
+                <a href="{% url 'post-detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-book-open mr-1"></i> Read More
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <p class="mb-0">{{ profile_user.username }} hasn't posted anything yet.</p>
+        </div>
+      {% endif %}
+
+      <div class="text-center mt-4">
+        <a href="{% url 'blog-home' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left mr-2"></i>Back to Blog
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Variables for consistent design */
+  :root {
+    --primary-color: #4b5563;
+    --primary-dark: #374151;
+    --primary-light: #f3f4f6;
+    --accent-color: #6b7280;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --card-bg: #ffffff;
+    --gray-bg: #f8f9fa;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 5px 15px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  /* Content section styling */
+  .content-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  /* Profile image improvements */
+  .profile-image-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 5px solid white;
+    transition: var(--transition);
+  }
+  
+  /* Bio styling */
+  .user-bio {
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 10px 15px;
+    border-left: 3px solid var(--primary-color);
+    margin-bottom: 15px;
+  }
+
+  .bio-text {
+    margin-bottom: 0;
+    font-style: italic;
+    color: var(--text-dark);
+  }
+
+  .profile-image-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.2));
+    pointer-events: none;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .profile-image-container:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+  }
+
+  .profile-image-container:hover .profile-image {
+    transform: scale(1.08);
+  }
+
+  /* Stats styling */
+  .profile-stats {
+    background-color: rgba(255,255,255,0.7);
+    border-radius: var(--border-radius-sm);
+    padding: 10px;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(5px);
+  }
+
+  .stat-item {
+    padding: 0 18px;
+    border-right: 1px solid #e0e0e0;
+    text-align: center;
+  }
+
+  .stat-item:last-child {
+    border-right: none;
+  }
+
+  .stat-item strong {
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+  }
+
+  /* Profile header styling */
+  .profile-header {
+    border-left: 5px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md) !important;
+    background: linear-gradient(145deg, #ffffff, var(--gray-bg)) !important;
+    border-radius: var(--border-radius-md) !important;
+  }
+
+  .profile-header:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg) !important;
+  }
+
+  .profile-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at top right, rgba(75, 85, 99, 0.07), transparent 70%);
+    pointer-events: none;
+  }
+
+  .profile-info h2 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .profile-info p {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .profile-info i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
+  }
+
+  /* Badge styling */
+  .badge-primary {
+    background-color: var(--primary-color);
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    margin-left: 0.75rem !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.85; }
+    100% { opacity: 1; }
+  }
+
+  /* Card styling */
+  .card {
+    border: none !important;
+    border-radius: var(--border-radius-md) !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-md) !important;
+    transition: var(--transition);
+    background: linear-gradient(145deg, #ffffff, var(--gray-bg)) !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-3px);
+  }
+
+  .card-body {
+    padding: 1.75rem !important;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(75, 85, 99, 0.1);
+    margin-bottom: 1.5rem !important;
+  }
+
+  .card-title i {
+    color: var(--primary-color) !important;
+    margin-right: 0.75rem !important;
+    font-size: 1.1rem;
+  }
+
+  /* Post card styling */
+  .post-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .post-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+    opacity: 0;
+    transition: var(--transition);
+  }
+
+  .post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .post-card:hover::after {
+    opacity: 1;
+  }
+
+  .post-header {
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .post-title {
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .post-title a {
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .post-title a:hover {
+    color: var(--primary-color);
+  }
+
+  .post-content {
+    color: var(--text-light);
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-sm {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: var(--transition);
+  }
+
+  .btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 3px 8px rgba(75, 85, 99, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-secondary {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 0.5rem 1.25rem;
+    transition: var(--transition);
+  }
+
+  .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* User stats section - improved for better visibility */
+  .user-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 2rem;
+    background: linear-gradient(145deg, #ffffff, var(--gray-bg));
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem 1rem;
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    text-align: center;
+    padding: 0.75rem 1rem;
+    position: relative;
+    transition: var(--transition);
+    min-width: 100px;
+    flex: 1;
+  }
+
+  .stat-box::after {
+    content: "";
+    position: absolute;
+    top: 15%;
+    right: 0;
+    bottom: 15%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.07), transparent);
+    display: block;
+  }
+
+  .stat-box:last-child::after {
+    display: none;
+  }
+
+  .stat-box:hover {
+    transform: translateY(-3px);
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 3px rgba(0,0,0,0.04);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40px;
+    padding: 0.2rem 0;
+  }
+
+  /* Fix for date/month stats */
+  .stat-value.date-format {
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+  
+  /* Fix for "last post" stat with simpler date format */
+  .stat-value.time-since {
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+
+  .stat-value i {
+    font-size: 1.6rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  /* Alert styling */
+  .alert-info {
+    background-color: rgba(75,85,99,0.1);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 1rem;
+    color: var(--text-dark);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 767px) {
+    .profile-stats {
+      justify-content: center;
+    }
+
+    .user-stats {
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      width: 50%;
+      flex: 0 0 50%;
+      margin-bottom: 1rem;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .stat-box::after {
+      display: none;
+    }
+
+    .profile-header {
+      text-align: center;
+    }
+
+    .profile-image-container {
+      width: 140px;
+      height: 140px;
+      margin-bottom: 1rem;
+    }
+
+    .badge-primary {
+      margin-top: 0.5rem;
+      margin-left: 0 !important;
+    }
+
+    .account-heading {
+      flex-direction: column;
+      align-items: center !important;
+    }
+  }
+</style>
+{% endblock content %}
+
+{% block sidebar %}
+{% endblock sidebar %}

@@ -1,0 +1,95 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<style>
+    /* Hide link previews */
+    a {
+        text-decoration: none;
+    }
+    a[title] {
+        position: relative;
+    }
+    a[title]:hover::after {
+        content: "";
+        display: none;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all links in the document
+        const links = document.querySelectorAll('a');
+
+        // For each link
+        links.forEach(link => {
+            // Remove any title attribute that might show on hover
+            if (link.hasAttribute('title')) {
+                link.removeAttribute('title');
+            }
+
+            // Add a blank rel attribute to prevent showing URL in status bar
+            link.setAttribute('rel', 'noopener');
+        });
+    });
+</script>
+<div class="content-section">
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4 text-center">
+      <div class="logout-icon mb-4">
+        <i class="fas fa-check-circle text-success"></i>
+      </div>
+
+      <h2 class="mb-3">Successfully Logged Out</h2>
+      <p class="text-muted mb-4">Thank you for visiting. You have been securely logged out of your account.</p>
+
+      <div class="logout-actions">
+        <a href="{% url 'login' %}" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt mr-2"></i>Log In Again
+        </a>
+        <a href="{% url 'blog-home' %}" class="btn btn-outline-secondary ml-2">
+          <i class="fas fa-home mr-2"></i>Return to Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <small class="text-muted">
+      <i class="fas fa-shield-alt mr-1"></i>
+      Your session has been securely terminated
+    </small>
+  </div>
+</div>
+
+<style>
+  .logout-icon {
+    font-size: 4rem;
+    line-height: 1;
+    margin: 1rem 0;
+    animation: fadeIn 0.8s ease;
+  }
+
+  .logout-actions {
+    margin-top: 1.5rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .logout-actions {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logout-actions .btn {
+      margin: 0.5rem 0;
+    }
+
+    .logout-actions .btn-outline-secondary {
+      margin-left: 0;
+    }
+  }
+</style>
+{% endblock content %}

@@ -1,0 +1,921 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"> -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
+    <!-- Font Awesome 6.4.2 -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-p6z+U2vjNJbQq5a7UJh8WqA3d4SH3LxY7uFZyFXMSFyU8eR3Edt5B4epQiZrcsI0kmwlOJfLnrw6dGTzD6rbNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Table of Contents CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'blog/toc.css' %}">
+
+    {% if title %}
+        <title>{{ title }} | Blog</title>
+    {% else %}
+        <title>Techies</title>
+    {% endif %}
+
+    <style>
+  .navbar {
+    background: linear-gradient(to right, #000000, #333333) !important;
+  }
+</style>
+    <style>
+  /* Navbar with gradient - add these styles to your existing CSS */
+  .navbar {
+    background: linear-gradient(to right, #121212, #333333) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* For mobile navbar */
+  @media (max-width: 992px) {
+    .navbar-collapse {
+      background: linear-gradient(135deg, #121212, #333333);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+</style>
+    <style>
+        :root {
+            --primary: #222222;
+            --primary-hover: #000000;
+            --accent: #888888;
+            --accent-hover: #666666;
+            --secondary: #505050;
+            --success: #2c6e49;
+            --danger: #c1121f;
+            --warning: #cc9700;
+            --info: #4a6fa5;
+            --light: #f8f9fa;
+            --dark: #121212;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --body-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-main: #212529;
+            --text-secondary: #505050;
+            --text-muted: #6c757d;
+            --border-radius: 0.5rem;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            --transition: 0.2s ease-in-out;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+            padding-top: 76px;
+            line-height: 1.7;
+            font-size: 1rem;
+            letter-spacing: 0.01em;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--dark) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            margin: 0 0.2rem;
+            transition: all 0.2s ease;
+            color: var(--gray-300) !important;
+        }
+
+        .nav-link:hover, .nav-link:focus {
+            background-color: rgba(255, 255, 255, 0.07);
+            transform: translateY(-1px);
+            color: white !important;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            color: white !important;
+        }
+
+        /* Container and content */
+        main.container {
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+            max-width: 1280px;
+        }
+
+        .content-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            border: none;
+        }
+
+        .content-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.07);
+        }
+
+        /* Headings */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-main);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        .content-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            color: var(--primary);
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: 0.4rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: none;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.25rem;
+            font-size: 0.95rem;
+        }
+
+        .alert-dismissible .btn-close {
+            padding: 1.25rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        a:hover {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Form elements */
+        .form-control {
+            border-radius: 0.4rem;
+            padding: 0.625rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            font-size: 0.95rem;
+            transition: all 0.15s ease;
+            background-color: var(--gray-100);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(136, 136, 136, 0.15);
+            background-color: white;
+        }
+
+        .input-group > .form-control {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .btn {
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.4rem;
+            transition: all 0.15s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-secondary {
+            color: var (--text-main);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* List group */
+        .list-group-item {
+            border-radius: 0.4rem;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.15s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-left: 3px solid var(--accent);
+        }
+
+        .sidebar-icon {
+            color: var(--accent);
+            width: 20px;
+            margin-right: 0.625rem;
+            text-align: center;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.45rem 0.8rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+            transition: all 0.15s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            opacity: 0.9;
+        }
+
+        /* Custom tags for monochrome theme */
+        .badge.bg-mono-1 {
+            background-color: #212121;
+            color: white;
+        }
+
+        .badge.bg-mono-2 {
+            background-color: #424242;
+            color: white;
+        }
+
+        .badge.bg-mono-3 {
+            background-color: #616161;
+            color: white;
+        }
+
+        .badge.bg-mono-4 {
+            background-color: #757575;
+            color: white;
+        }
+
+        .badge.bg-mono-5 {
+            background-color: #9e9e9e;
+            color: #212121;
+        }
+
+        .badge.bg-mono-6 {
+            background-color: #bdbdbd;
+            color: #212121;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: rgba(255, 255, 255, 0.75);
+            padding: 3rem 0 2rem;
+            margin-top: 3rem;
+        }
+
+        footer h5 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.15s ease;
+        }
+
+        footer a:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+        footer .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.2s ease;
+            margin-right: 0.75rem;
+        }
+
+        footer .social-link:hover {
+            background-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        footer .list-unstyled li {
+            margin-bottom: 0.75rem;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            body {
+                padding-top: 68px;
+            }
+
+            .content-section {
+                padding: 1.25rem;
+            }
+
+            .navbar-collapse {
+                background-color: var(--dark);
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .nav-link {
+                padding: 0.625rem 1rem;
+                margin: 0.25rem 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+
+            footer {
+                text-align: center;
+            }
+
+            footer .social-links {
+                justify-content: center;
+                margin-bottom: 1.5rem;
+            }
+        }
+    </style>
+<style>
+  /* Colorful tags that complement the monochrome theme */
+  .tag-cloud .badge {
+    margin: 0.2rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  /* Tag color variations - subtle but colorful palette */
+  .tag-cloud .badge:nth-child(5n+1) {
+    background: linear-gradient(135deg, #614385, #516395);
+    color: white;
+  }
+  
+  .tag-cloud .badge:nth-child(5n+2) {
+    background: linear-gradient(135deg, #5f2c82, #49a09d);
+    color: white;
+  }
+  
+  .tag-cloud .badge:nth-child(5n+3) {
+    background: linear-gradient(135deg, #334d50, #cbcaa5);
+    color: white;
+  }
+  
+  .tag-cloud .badge:nth-child(5n+4) {
+    background: linear-gradient(135deg, #3e5151, #decba4);
+    color: white;
+  }
+  
+  .tag-cloud .badge:nth-child(5n+5) {
+    background: linear-gradient(135deg, #283048, #859398);
+    color: white;
+  }
+  
+  /* Hover effect */
+  .tag-cloud .badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+</style>
+<style>
+  /* Username display styling with curved black box */
+  .username-box {
+    display: inline-flex;
+    align-items: center;
+    background-color: #000000;
+    color: white;
+    border-radius: 50px;
+    padding: 0.4rem 1rem;
+    margin-right: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    position: relative;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .username-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    color: white;
+  }
+  
+  /* Admin badge with purple glow effect */
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 50px;
+    margin-left: 0.5rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 10px 1px rgba(155, 89, 182, 0.5);
+    animation: glow 2s infinite alternate;
+  }
+  
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px 1px rgba(155, 89, 182, 0.5);
+    }
+    to {
+      box-shadow: 0 0 15px 4px rgba(155, 89, 182, 0.7);
+    }
+  }
+  
+  /* For mobile display */
+  @media (max-width: 576px) {
+    .username-box {
+      padding: 0.3rem 0.8rem;
+      font-size: 0.85rem;
+    }
+    
+    .admin-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+    }
+  }
+</style>
+<style>
+  /* Dropdown menu animations and styling */
+  .dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    background: #fff;
+    overflow: hidden;
+    padding: 0.5rem;
+  }
+  
+  .dropdown-item {
+    border-radius: 0.3rem;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .dropdown-item:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    transform: translateX(3px);
+  }
+  
+  .dropdown-item i {
+    opacity: 0.7;
+    width: 1.5rem;
+    display: inline-block;
+  }
+  
+  /* Animation for dropdown menu */
+  .dropdown-menu.animate.slideIn {
+    animation: slideIn 0.25s;
+  }
+  
+  @keyframes slideIn {
+    0% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* User avatar in navbar */
+  .nav-link img.rounded-circle {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.25s;
+    object-fit: cover;
+  }
+  
+  .nav-link:hover img.rounded-circle {
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+  }
+</style>
+<style>
+  /* Enhanced card design */
+  .content-section {
+    background: #ffffff;
+    border-radius: 0.8rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .content-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  
+  .content-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, #121212, #505050);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .content-section:hover::before {
+    opacity: 1;
+  }
+  
+  .content-section h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: #222;
+    position: relative;
+  }
+  
+  .content-section h3 i {
+    background: linear-gradient(135deg, #333, #777);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-right: 0.5rem;
+  }
+</style>
+    <style>
+        /* Navbar scroll behavior */
+        .navbar {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        
+        .navbar.navbar-hidden {
+            transform: translateY(-100%);
+            box-shadow: none;
+        }
+        
+        .navbar.navbar-visible {
+            transform: translateY(0);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <i class="fas fa-feather-alt me-2"></i>Blog It
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarToggle">
+        <div class="navbar-nav me-auto">
+          <a class="nav-item nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+            <i class="fas fa-home me-1"></i> Home
+          </a>
+          <a class="nav-item nav-link {% if request.path == '/about/' %}active{% endif %}" href="/about/">
+            <i class="fas fa-info-circle me-1"></i> About
+          </a>
+        </div>
+        <!-- Navbar Right Side -->
+        <div class="navbar-nav">
+          {% if user.is_authenticated %}
+            <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="{{ user.profile.image.url }}" class="rounded-circle me-1" width="25" height="25" alt="{{ user.username }}">
+                <span>{{ user.username }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end animate slideIn" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="/post/new/"><i class="fas fa-edit me-2"></i>New Post</a></li>
+                <li><a class="dropdown-item" href="/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a class="nav-item nav-link" href="/login/">
+              <i class="fas fa-sign-in-alt me-1"></i> Login
+            </a>
+            <a class="nav-item nav-link" href="/register/">
+              <i class="fas fa-user-plus me-1"></i> Register
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main role="main" class="container">
+  <div class="row g-4">
+      <div class="col-lg-12">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="d-flex">
+              <div class="me-3">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'danger' or message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} fa-lg"></i>
+              </div>
+              <div>{{ message }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      <div class="content-section">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4 col-md-6">
+        <h5>About Monochrome</h5>
+        <p class="mb-4">A minimalist platform for sharing knowledge, experiences, and insights about web development, programming, and technology.</p>
+        <div class="d-flex social-links">
+          <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'blog-home' %}"><i class="fas fa-chevron-right me-2"></i>Home</a></li>
+          <li><a href="{% url 'blog-about' %}"><i class="fas fa-chevron-right me-2"></i>About</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Privacy Policy</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-md-12">
+        <h5>Recent Posts</h5>
+        <ul class="list-unstyled">
+          <li><a href="#"><i class="fas fa-file-alt me-2"></i>Building Responsive Web Applications</a></li>
+          <li><a href="#"><i class="fas fa-file-alt me-2"></i>10 Tips for Writing Clean Python Code</a></li>
+          <li><a href="#"><i class="fas fa-file-alt me-2"></i>Getting Started with Django REST Framework</a></li>
+          <li><a href="#"><i class="fas fa-file-alt me-2"></i>Modern CSS Techniques</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col-12 text-center">
+        <p class="mb-0 opacity-75">&copy; {% now "Y" %} Monochrome. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<!-- Scroll-Based Navbar Behavior -->
+<script src="{% static 'blog/navbar.js' %}"></script>
+
+<!-- Custom JS for sidebar handling -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto hide alerts after 5 seconds
+  setTimeout(function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 5000);
+
+  // Add hover effects to elements
+  const hoverables = document.querySelectorAll('.badge');
+  hoverables.forEach(item => {
+    item.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-2px)';
+    });
+    item.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+    });
+  });
+
+  // Initialize Bootstrap 5 tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      if (this.getAttribute('href') !== "#") {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      }
+    });
+  });
+
+  // Add subtle fade-in animation to content sections
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.content-section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'opacity 0.5s, transform 0.5s';
+    observer.observe(section);
+  });
+
+  // Define a separate class for the animation
+  document.head.insertAdjacentHTML('beforeend', `
+    <style>
+      .content-section.show {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+      }
+    </style>
+  `);
+});
+</script>
+</body>
+</html>
+<style>
+  /* Tag cloud container */
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  
+  /* Base tag styling */
+  .tag-cloud .badge {
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  /* Specific tag colors - customized for tech topics */
+  .tag-python {
+    background: linear-gradient(135deg, #306998, #FFD43B);
+  }
+  
+  .tag-django {
+    background: linear-gradient(135deg, #092E20, #44B78B);
+  }
+  
+  .tag-webdev {
+    background: linear-gradient(135deg, #E44D26, #F16529);
+  }
+  
+  .tag-programming {
+    background: linear-gradient(135deg, #41A6B8, #7C5295);
+  }
+  
+  .tag-tutorial {
+    background: linear-gradient(135deg, #614385, #516395);
+  }
+  
+  .tag-tips {
+    background: linear-gradient(135deg, #5f2c82, #49a09d);
+  }
+  
+  .tag-javascript {
+    background: linear-gradient(135deg, #F0DB4F, #323330);
+  }
+  
+  .tag-react {
+    background: linear-gradient(135deg, #61DAFB, #282C34);
+  }
+  
+  /* Hover effect */
+  .tag-cloud .badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+</style>
+

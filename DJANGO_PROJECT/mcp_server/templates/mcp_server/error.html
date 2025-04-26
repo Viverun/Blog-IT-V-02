@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Error - AI Tools Dashboard{% endblock %}
+
+{% block content %}
+<div style="padding: 20px; background-color: #f8d7da; border-left: 5px solid #dc3545; margin-bottom: 20px;">
+    <h2 style="color: #721c24;">Error: {{ error_type }}</h2>
+    <p>{{ error }}</p>
+    
+    <h3>Possible solutions:</h3>
+    <ul>
+        <li>Make sure the <code>django_ai_tools.py</code> file is in your project root and contains all required functions.</li>
+        <li>Check that your MCP server is running at the configured URL.</li>
+        <li>Ensure that the <code>django_ai_tools</code> module is properly installed.</li>
+        <li>Verify that your Django project is properly configured.</li>
+    </ul>
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'admin:index' %}" class="button">Go to Admin</a>
+        <a href="/" class="button">Go to Homepage</a>
+    </div>
+</div>
+{% endblock %}

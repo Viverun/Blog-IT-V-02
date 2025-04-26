@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "python-lsp-server": {
+            "type": "stdio",
+            "command": "pylsp",
+            "args": [
+                "--ws",
+                "--port",
+                "9000"
+            ],
+            "env": {}
+        }
+    }
+}
