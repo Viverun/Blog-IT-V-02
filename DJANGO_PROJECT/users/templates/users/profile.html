@@ -38,9 +38,7 @@
       <div class="col-md-3 text-center mb-3 mb-md-0">
         <div class="profile-image-container">
           <img class="profile-image" src="{{ user.profile.image.url }}" alt="Profile Picture">
-          <div class="photo-overlay">
-            <small>Change photo</small>
-          </div>
+        
         </div>
       </div>
       <div class="col-md-9">
@@ -120,7 +118,7 @@
                   <label class="font-weight-bold mb-2">Currently:</label>
                   <div class="d-flex align-items-center">
                     <div class="current-profile-image mr-3">
-<!--                      <img src="{{ user.profile.image.url }}" alt="Current profile image">-->
+                      <img src="{{ user.profile.image.url }}" alt="Current profile image">
                     </div>
                     <small class="text-muted">{{ user.profile.image.name|default:"profile_pics/default.jpg" }}</small>
                   </div>
