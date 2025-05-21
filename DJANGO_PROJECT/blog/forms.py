@@ -105,11 +105,12 @@ class SearchForm(forms.Form):
     q = forms.CharField(
         widget=forms.TextInput(
             attrs={
-                "class": "form-control me-2",
+                "class": "form-control search-input",
                 "type": "search",
                 "placeholder": "Search posts...",
                 "aria-label": "Search",
-                "style": "border-radius: 20px 0 0 20px; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #ffffff !important; padding-left: 1rem;" 
+                "autocomplete": "off",
+                "style": "height: 40px;"
             }
         ),
         label=""

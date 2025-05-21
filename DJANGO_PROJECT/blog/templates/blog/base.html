@@ -26,11 +26,10 @@
     {% endif %}
 
     <style>
-  /* Navbar styling */
-  .navbar {
+  /* Navbar styling */  .navbar {
     background: linear-gradient(to right, #1a1a1a, #2b2b2b) !important; /* Darker gradient */
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Softer shadow */
-    padding: 0.8rem 1.5rem; /* Increased padding */
+    padding: 0.6rem 1rem; /* Adjusted padding */
     transition: all 0.3s ease;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Slightly more visible border */
     border-bottom-left-radius: 8px; /* Smoother curve */
@@ -50,16 +49,17 @@
   .navbar-brand:hover {
     transform: scale(1.05); /* Slight zoom on hover */
   }
-
   .nav-link {
     font-weight: 500;
-    padding: 0.6rem 1.2rem; /* Adjusted padding */
+    padding: 0.5rem 0.9rem; /* Reduced padding */
     border-radius: 6px; /* Smoother radius */
-    margin: 0 0.3rem; /* Adjusted margin */
+    margin: 0 0.2rem; /* Reduced margin */
     transition: all 0.25s ease;
     color: var(--gray-400) !important; /* Lighter default color */
     position: relative; /* For pseudo-elements */
     overflow: hidden; /* For effects */
+    white-space: nowrap; /* Prevent text wrapping */
+    display: inline-block; /* Better visibility */
   }
 
   .nav-link::before {
@@ -95,7 +95,6 @@
     width: 70%;
     background-color: white;
   }
-
   /* Search form styling */
   .navbar .form-control {
     background-color: rgba(255, 255, 255, 0.1);
@@ -115,6 +114,86 @@
   }
   .navbar .btn-outline-light:hover {
     background-color: rgba(255, 255, 255, 0.25);
+  }  /* Enhanced Search Bar Styling */
+  .search-form {
+    max-width: 250px;
+    width: 100%;
+    position: relative;
+  }
+
+  .search-form .input-group {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+
+  .search-input {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-radius: 50px 0 0 50px !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+    backdrop-filter: blur(8px);
+    height: auto !important;
+  }
+
+  .search-input:focus {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-style: italic;
+  }  .search-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: none;
+    color: #ffffff;
+    border-radius: 0 50px 50px 0;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .search-btn:hover, .search-btn:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+  
+  /* Active search form state */
+  .search-form.search-active .search-input {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    width: 100% !important;
+  }
+  
+  .search-form.search-active .search-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  @media (max-width: 991.98px) {
+    .search-form {
+      margin: 0.5rem 0 !important;
+      max-width: 100%;
+    }
+    
+    .search-form .input-group {
+      width: 100%;
+      display: flex;
+    }
+    
+    .search-input, 
+    .search-btn {
+      height: 40px !important;
+    }
   }
 
   /* User profile dropdown */
@@ -147,6 +226,11 @@
   }
   .dropdown-divider {
     border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Ensure author links in post cards don't turn white on hover */
+  .content-section .article-metadata a:hover {
+    color: var(--accent-hover) !important; /* Or any other color you prefer that's not white */
   }
 
 </style>
@@ -190,13 +274,11 @@
             line-height: 1.7;
             font-size: 1rem;
             letter-spacing: 0.01em;
-        }
-
-        /* Navbar */
+        }        /* Navbar */
         .navbar {
             /* background: var(--dark) !important; */ /* Overridden by gradient style above */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
             transition: all 0.3s ease;
         }
 
@@ -208,11 +290,12 @@
 
         .nav-link {
             font-weight: 500;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.9rem;
             border-radius: 0.25rem;
             margin: 0 0.2rem;
             transition: all 0.2s ease;
             color: var(--gray-300) !important;
+            white-space: nowrap;
         }
 
         .nav-link:hover, .nav-link:focus {
@@ -608,19 +691,21 @@
 <body>
     <header class="site-header">
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-            <div class="container">
-                <a class="navbar-brand mr-4" href="{% url 'blog-home' %}"><i class="fas fa-feather-alt me-2"></i>Blog It</a>
+            <div class="container">                <a class="navbar-brand mr-4" href="{% url 'blog-home' %}"><i class="fas fa-feather-alt me-2"></i>Blog It</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarToggle">
-                    <div class="navbar-nav me-auto">
-                        <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
+                    <div class="navbar-nav me-auto">                        <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
                         <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
                         <!-- Search Form -->
-                        <form class="d-flex ms-2 me-auto" method="GET" action="{% url 'search-results' %}">
-                            {{ search_form.q }} 
-                            <button class="btn btn-outline-light btn-sm" type="submit"><i class="fas fa-search"></i></button>
+                        <form class="d-flex ms-lg-3 my-2 my-lg-0 search-form" method="GET" action="{% url 'search-results' %}">
+                            <div class="input-group d-inline-flex flex-nowrap">
+                                {{ search_form.q }}
+                                <button class="btn search-btn d-flex align-items-center" type="submit" aria-label="Search">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                         </form>
                     </div>
                     <!-- Navbar Right Side -->
@@ -737,8 +822,33 @@
                     }
                 });
             });
-        </script>
-    {% endif %}
+        </script>    {% endif %}
+
+    <!-- Search bar enhancement script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('.search-input');
+            const searchForm = document.querySelector('.search-form');
+            
+            if (searchInput && searchForm) {
+                // Add focus animation
+                searchInput.addEventListener('focus', function() {
+                    searchForm.classList.add('search-active');
+                });
+                
+                searchInput.addEventListener('blur', function() {
+                    if (!this.value) {
+                        searchForm.classList.remove('search-active');
+                    }
+                });
+                
+                // Add class if search has value on page load
+                if (searchInput.value) {
+                    searchForm.classList.add('search-active');
+                }
+            }
+        });
+    </script>
 
     {% block scripts %}
     {% endblock %}

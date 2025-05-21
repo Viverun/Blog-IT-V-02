@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 import os.path
-from typing import Any  # Add Any for type hinting
-import dj_database_url  # Ensure dj_database_url is imported
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # Define the base directory of the project
@@ -92,7 +90,7 @@ WSGI_APPLICATION = 'DJANGO_PROJECT.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Database configuration - SQLite locally, PostgreSQL on Render
-DATABASES: dict[str, dict[str, Any]] = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
@@ -100,24 +98,12 @@ DATABASES: dict[str, dict[str, Any]] = {
 }
 
 # Use PostgreSQL in production (on Render)
-# Safely handle database URL configuration
-if 'DATABASE_URL' in os.environ:
-    database_url = os.environ['DATABASE_URL']
-    # Check if the URL is for PostgreSQL and adjust SSL mode if necessary
-    if database_url.startswith('postgres://') or database_url.startswith('postgresql://'):
-        db_url_config = dj_database_url.parse(database_url, ssl_require=True, conn_max_age=600)
-    else:
-        db_url_config = dj_database_url.parse(database_url)
-
-    DATABASES['default'] = {
-        'ENGINE': db_url_config.get('ENGINE', 'django.db.backends.postgresql'),
-        'NAME': db_url_config.get('NAME', ''),
-        'USER': db_url_config.get('USER', ''),
-        'PASSWORD': db_url_config.get('PASSWORD', ''),
-        'HOST': db_url_config.get('HOST', ''),
-        'PORT': str(db_url_config.get('PORT', '')) if db_url_config.get('PORT') else '',
-        'OPTIONS': db_url_config.get('OPTIONS', {}),
-    }
+if 'DATABASE_URL' in os.environ and DATABASE_URL_AVAILABLE:
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 
 
 # Password validation

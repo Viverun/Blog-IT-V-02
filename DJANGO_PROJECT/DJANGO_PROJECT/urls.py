@@ -16,7 +16,6 @@ def simple_test(request):
 # Simple email test view
 def email_test(request):
     from django.core.mail import send_mail
-    from django.contrib.sites.models import Site
     
     if request.GET.get('email'):
         # Try to send a test email
@@ -24,7 +23,7 @@ def email_test(request):
             recipient = request.GET.get('email')
             send_mail(
                 subject='Test Email from Blog-It',
-                message=f'This is a test email from your Django site.',
+                message='This is a test email from your Django site.',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[recipient],
                 fail_silently=False,
@@ -74,10 +73,9 @@ urlpatterns = [
     path('password-reset-complete/', 
          auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), 
          name='password_reset_complete'),
-         
-    # Include blog URLs last
+           # Include blog URLs last
     path('', include('blog.urls')),
-    # path('summernote/', include('django_summernote.urls')),
+    path('summernote/', include('django_summernote.urls')),
 ]
 
 # Serve media files in development

@@ -63,6 +63,19 @@
         color: #444;
         border-left: 3px solid var(--primary);
     }
+    
+    /* Custom bio field styles */
+    .bio-field-container textarea {
+        min-height: 60px !important;
+        height: 60px !important;
+        width: 100%;
+        resize: none;
+    }
+    
+    .bio-field-container .form-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
 
     .social-links .btn {
         margin-right: 0.5rem;
@@ -144,10 +157,12 @@
         padding: 0.75rem 2rem;
         font-size: 1rem;
         font-weight: 500;
+        color: white;
     }
     .btn-save-profile:hover {
         background-color: var(--primary-hover);
         border-color: var(--primary-hover);
+        color: white;
     }
     .btn-cancel-profile {
         padding: 0.75rem 1.5rem;
@@ -225,12 +240,18 @@
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
-                <!-- Account Details Section -->
-                <div class="col-lg-6 mb-4">
+                <!-- Account Details Section -->                <div class="col-lg-6 mb-4">
                     <div class="form-section-card h-100">
                         <h5 class="card-subtitle"><i class="fas fa-id-card me-2 opacity-75"></i>Account Details</h5>
                         {{ u_form.username|as_crispy_field }}
                         {{ u_form.email|as_crispy_field }}
+                        
+                        <div class="bio-field-container">
+                            {{ p_form.bio|as_crispy_field }}
+                            <small class="form-text text-muted mt-n2">
+                                <i class="fas fa-info-circle me-1"></i>Short description about yourself (will appear on your profile)
+                            </small>
+                        </div>
                     </div>
                 </div>
 
@@ -246,12 +267,9 @@
                                 <small class="text-muted">{{ user.profile.image.name|default:"profile_pics/default.jpg" }}</small>
                             </div>
                         </div>
-                        {{ p_form.image|as_crispy_field }}
-                        <small class="form-text text-muted mb-3 d-block">
+                        {{ p_form.image|as_crispy_field }}                        <small class="form-text text-muted mb-3 d-block">
                             <i class="fas fa-info-circle me-1"></i>For best results, upload a square image. Max 2MB.
                         </small>
-                        
-                        {{ p_form.bio|as_crispy_field }}
                     </div>
                 </div>
             </div>
