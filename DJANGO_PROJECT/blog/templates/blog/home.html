@@ -1380,6 +1380,136 @@
             max-width: 1300px;
         }
     }
+
+/* --- Enhancements for Blog Post Cards --- */
+.blog-posts-container > .media.content-section { /* Specific to post cards */
+    background-color: #ffffff;
+    border: 1px solid #eeeeee; /* Lighter border */
+    border-radius: 16px;       /* Consistent rounded corners */
+    padding: 1.75rem;           /* Optimized padding for cards */
+    margin-bottom: 2.5rem !important; /* Ensure consistent spacing */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04); /* Softer, more modern shadow */
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+.blog-posts-container > .media.content-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.blog-posts-container .article-img {
+    width: 60px; 
+    height: 60px;
+    border: 3px solid #f8f9fa; /* Match page background for a subtle effect */
+    margin-right: 1.5rem; 
+}
+
+.blog-posts-container .article-metadata {
+    margin-bottom: 0.75rem; 
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Spacing between metadata items (e.g., author and date) */
+.blog-posts-container .article-metadata > * + * {
+    margin-left: 0.75rem;
+}
+
+.blog-posts-container .article-metadata .text-muted { /* Date */
+    font-size: 0.825rem; 
+    color: #7f7f7f;    
+}
+
+.blog-posts-container .article-metadata .text-muted::before {
+    content: none; /* Removed bullet as sibling selector handles spacing */
+}
+
+.blog-posts-container .article-title { 
+    margin-bottom: 0.6rem; 
+}
+
+.blog-posts-container .article-title a {
+    color: #1c1c1c; 
+    text-decoration: none;
+    font-weight: 600; 
+    font-size: 1.4rem; 
+    line-height: 1.35;
+    transition: color 0.2s ease;
+}
+
+.blog-posts-container .article-title a:hover {
+    color: #000000;
+}
+
+.blog-posts-container .post-description {
+    color: #505050; 
+    font-size: 0.975rem;
+    line-height: 1.7;
+    margin-top: 0.25rem; 
+    margin-bottom: 1.5rem; 
+}
+
+.blog-posts-container .post-description .highlight-text {
+    background-color: #f0f0f0;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    font-weight: 500;
+    color: #282828; 
+}
+
+.blog-posts-container .post-footer {
+    margin-top: auto; 
+    padding-top: 1.25rem; 
+    border-top: 1px solid #f0f0f0; /* Softer separator line */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.blog-posts-container .read-more {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem; 
+    background-color: #282828;
+    color: #ffffff !important;
+    border-radius: 8px; 
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem; 
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blog-posts-container .read-more:hover {
+    background-color: #000000;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.12); 
+}
+
+.blog-posts-container .read-more i {
+    margin-left: 0.45rem;
+    font-size: 0.9em; 
+    transition: transform 0.2s ease;
+}
+
+.blog-posts-container .read-more:hover i {
+    transform: translateX(3px);
+}
+
+/* --- Pagination Refinement --- */
+.pagination-container .page-item .page-link {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Slightly adjusted default shadow */
+}
+
+.pagination-container .page-item.active .page-link {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow for active item */
+}
+
+.pagination-container .page-item .page-link:hover {
+    box-shadow: 0 5px 12px rgba(0,0,0,0.1); /* Consistent hover shadow */
+}
+
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
