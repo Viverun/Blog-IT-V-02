@@ -4,10 +4,12 @@ from .views import(
     PostDetailView,
     PostCreateView,
     PostUpdateView,
-    PostDeleteView
+    PostDeleteView,
+    UserPostListView # Add UserPostListView
 )
 from . import views
 urlpatterns = [
+    path('user/<str:username>/', UserPostListView.as_view(), name='user-posts'),
     path('about/', views.about, name='blog-about'),
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
@@ -19,9 +21,5 @@ urlpatterns = [
     path('comment/<int:pk>/delete/', views.delete_comment, name='delete-comment'),
     path('tag/<str:tag_name>/', views.tag_posts, name='tag-posts'),
     path('desktop-only/', views.desktop_only, name='desktop-only'),
-    path('search/', PostListView.as_view(), name='search_results'), # Placeholder for search view
-    
-    # Add our AI tools views
-    path('test/', views.simple_test_view, name='simple-test'),
-    path('ai-tools/', views.blog_ai_tools_dashboard, name='blog-ai-tools'),
+    path('search/', views.SearchResultsView.as_view(), name='search-results'),
 ]

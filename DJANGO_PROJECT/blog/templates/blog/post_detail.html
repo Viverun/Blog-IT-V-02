@@ -1,4 +1,5 @@
 {% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
 {% block content%}
 <style>
     /* Navbar scroll behavior */
@@ -667,6 +668,7 @@
         margin-bottom: 0.5rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2; /* Standard property */
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -677,6 +679,7 @@
         margin-bottom: 1rem;
         display: -webkit-box;
         -webkit-line-clamp: 3;
+        line-clamp: 3; /* Standard property */
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -717,6 +720,11 @@
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+    }
+
+    .post-footer {
+        padding: 1rem 2rem 2rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
     }
 </style>
 
@@ -795,6 +803,10 @@
                 </a>
             </div>
         </div>
+
+        <div class="post-footer">
+            {% include 'blog/social_share_buttons.html' with post=object %}
+        </div>
     </div>
     
     <!-- Comments Section -->
@@ -811,7 +823,7 @@
         <div class="comment-form-container">
             <form method="POST" action="{% url 'add-comment' object.id %}">
                 {% csrf_token %}
-                {{ comment_form }}
+                {{ comment_form|crispy }}
                 <div class="d-flex justify-content-end mt-3">
                     <button type="submit" class="comment-form-btn">
                         <i class="far fa-paper-plane"></i> Post Comment
@@ -829,8 +841,8 @@
         <!-- Comments List -->
         {% if object.comments.exists %}
             {% for comment in object.comments.all %}
-                {% if not comment.parent %} <!-- Only show top-level comments -->
-                <div class="comment-card">
+                {% if not comment.parent %} <!-- Only show top-level comments initially -->
+                <div class="comment-card" id="comment-{{ comment.id }}">
                     <div class="comment-header">
                         <img class="comment-author-img" src="{{ comment.author.profile.image.url }}" alt="{{ comment.author }}'s profile image">
                         <div>
@@ -842,7 +854,7 @@
                     </div>
                     
                     <div class="comment-content">
-                        {{ comment.content }}
+                        {{ comment.content|linebreaksbr }}
                     </div>
                     
                     <div class="comment-footer">
@@ -864,18 +876,20 @@
                         </div>
                     </div>
                 
-                        <!-- Reply Form -->
+                        <!-- Reply Form Container (initially hidden) -->
                         {% if user.is_authenticated %}
-                        <div id="reply-form-{{ comment.id }}" class="reply-form-container">
+                        <div id="reply-form-container-{{ comment.id }}" class="reply-form-container" style="display: none;">
                             <form method="POST" action="{% url 'add-reply' object.id comment.id %}">
                                 {% csrf_token %}
                                 <div class="form-group">
+                                    <!-- Using a simple textarea for replies, can be enhanced with crispy forms if needed -->
                                     <textarea name="content" class="form-control" rows="3" placeholder="Write your reply here..." required style="border-radius: 12px; background-color: #f8f9fa; padding: 12px;"></textarea>
                                 </div>
                                 <div class="d-flex justify-content-end mt-2">
-                                    <button type="submit" class="comment-form-btn">
+                                    <button type="submit" class="comment-form-btn btn-sm">
                                         <i class="far fa-paper-plane"></i> Post Reply
                                     </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm ms-2 cancel-reply-btn" data-comment-id="{{ comment.id }}">Cancel</button>
                                 </div>
                             </form>
                         </div>
@@ -885,7 +899,7 @@
                         {% if comment.replies.exists %}
                         <div class="replies-container mt-3">
                             {% for reply in comment.replies.all %}
-                            <div class="reply-card">
+                            <div class="reply-card" id="comment-{{ reply.id }}">
                                 <div class="comment-header">
                                     <img class="comment-author-img" src="{{ reply.author.profile.image.url }}" alt="{{ reply.author }}'s profile image">
                                     <div>
@@ -897,7 +911,7 @@
                                 </div>
                                 
                                 <div class="comment-content">
-                                    {{ reply.content }}
+                                    {{ reply.content|linebreaksbr }}
                                 </div>
                                 
                                 {% if user.is_authenticated and reply.author == user %}
@@ -917,21 +931,81 @@
                         </div>
                         {% endif %}
                     </div>
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <!-- No Comments Message -->
-                <div class="no-comments-message">
-                    <i class="far fa-comment-dots d-block"></i>
-                    <p>No comments yet. Be the first to share your thoughts!</p>
-                </div>
-            {% endif %}
-        </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <!-- No Comments Message -->
+            <div class="no-comments-message">
+                <i class="far fa-comment-dots d-block"></i>
+                <p>No comments yet. Be the first to share your thoughts!</p>
+            </div>
+        {% endif %}
     </div>
     
+    <!-- Related Posts Section -->
+    {% if related_posts %}
+    <div class="related-posts">
+        <h3 class="related-posts-title"><i class="fas fa-stream me-2"></i>Related Posts</h3>
+        <div class="related-posts-grid">
+            {% for related_post in related_posts %}
+            <div class="related-post-card">
+                <!-- You might want a placeholder image if posts don't have images -->
+                <!-- <img src="{{ related_post.image.url | default:'path/to/default/image.jpg' }}" alt="{{ related_post.title }}" class="related-post-image"> -->
+                <div class="related-post-content">
+                    <h5 class="related-post-title"><a href="{{ related_post.get_absolute_url }}">{{ related_post.title }}</a></h5>
+                    <p class="related-post-excerpt">{{ related_post.description|default:related_post.content|striptags|truncatewords:20 }}</p>
+                    <div class="related-post-meta">
+                        <span><i class="far fa-calendar-alt me-1"></i>{{ related_post.date_posted|date:"M d, Y" }}</span>
+                        <span><i class="far fa-user me-1"></i><a href="{% url 'user-profile' related_post.author.username %}">{{ related_post.author.username }}</a></span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Right sidebar placeholder - kept for layout structure -->
     <div class="post-sidebar">
         {% block sidebar %}{% endblock %}
     </div>
 </div>
+
+{% block scripts %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle reply forms
+    const replyToggleButtons = document.querySelectorAll('.reply-toggle-btn');
+    replyToggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            const replyFormContainer = document.getElementById(`reply-form-container-${commentId}`);
+            if (replyFormContainer) {
+                // Hide all other open reply forms
+                document.querySelectorAll('.reply-form-container').forEach(form => {
+                    if (form.id !== replyFormContainer.id) {
+                        form.style.display = 'none';
+                    }
+                });
+                // Toggle current form
+                replyFormContainer.style.display = replyFormContainer.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Cancel reply
+    const cancelReplyButtons = document.querySelectorAll('.cancel-reply-btn');
+    cancelReplyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            const replyFormContainer = document.getElementById(`reply-form-container-${commentId}`);
+            if (replyFormContainer) {
+                replyFormContainer.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock scripts %}
 {% endblock content %}

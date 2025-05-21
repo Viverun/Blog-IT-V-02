@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from .models import Post, Comment, Tag
 from .forms import CommentForm, PostForm
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q  # Import Q
 import pyjokes  # Import the pyjokes library
 from django.http import HttpResponse, JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
@@ -66,11 +66,12 @@ class UserPostListView(ListView):
     model = Post
     template_name = 'blog/user_posts.html'
     context_object_name = 'posts'
-    ordering = '-date_posted'
+    # ordering = '-date_posted' # This will be handled by the get_queryset method
     paginate_by = 6
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Post.objects.filter(author=user).order_by('-date_posted')
 
 
     def get_context_data(self, **kwargs):
@@ -85,7 +86,22 @@ class PostDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        post = self.get_object()
+        assert isinstance(post, Post) # Add assertion here
         context['comment_form'] = CommentForm()
+
+        # Related posts logic
+        post_tags_ids = post.tags.values_list('id', flat=True)
+        similar_posts = Post.objects.filter(tags__in=post_tags_ids)\
+            .exclude(pk=post.pk)\
+            .annotate(same_tags=Count('tags'))\
+            .order_by('-same_tags', '-date_posted')[:3]  # Get top 3 similar posts
+
+        if not similar_posts.exists():
+            # Fallback: if no posts with common tags, get recent posts excluding current
+            similar_posts = Post.objects.all().exclude(pk=post.pk).order_by('-date_posted')[:3]
+
+        context['related_posts'] = similar_posts
         return context
 
 
@@ -109,6 +125,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         post = self.get_object()
+        assert isinstance(post, Post) # Add assertion here
         return self.request.user == post.author
 
     def form_valid(self, form):
@@ -125,6 +142,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin,DeleteView):
     success_url = '/'
     def test_func(self):
         post = self.get_object()
+        assert isinstance(post, Post) # Add assertion here
         if self.request.user == post.author:
             return True
         return False
@@ -135,7 +153,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin,DeleteView):
 
 @login_required
 def add_comment(request, pk):
-    post = get_object_or_404(Post, id=pk)
+    post = get_object_or_404(Post, pk=pk) # Use pk for fetching
     
     if request.method == 'POST':
         form = CommentForm(request.POST)
@@ -145,20 +163,20 @@ def add_comment(request, pk):
             comment.author = request.user
             comment.save()
             messages.success(request, "Your comment has been posted!")
-            return redirect('post-detail', pk=post.id)
+            return redirect('post-detail', pk=post.pk) # Use post.pk
     else:
         form = CommentForm()
     
-    return redirect('post-detail', pk=post.id)
+    return redirect('post-detail', pk=post.pk) # Use post.pk
 
 @login_required
 def add_reply(request, post_pk, comment_pk):
-    post = get_object_or_404(Post, id=post_pk)
-    parent_comment = get_object_or_404(Comment, id=comment_pk)
+    post = get_object_or_404(Post, pk=post_pk) # Use pk for fetching
+    parent_comment = get_object_or_404(Comment, pk=comment_pk) # Use pk for fetching
     
     if request.method == 'POST':
         form = CommentForm(request.POST)
-        if form.is_valid():  # Fixed extra parenthesis
+        if form.is_valid():
             reply = form.save(commit=False)
             reply.post = post
             reply.author = request.user
@@ -166,12 +184,12 @@ def add_reply(request, post_pk, comment_pk):
             reply.save()
             messages.success(request, "Your reply has been posted!")
     
-    return redirect('post-detail', pk=post_pk)
+    return redirect('post-detail', pk=post.pk) # Use post.pk, which is post_pk here
 
 @login_required
 def delete_comment(request, pk):
-    comment = get_object_or_404(Comment, id=pk)
-    post_id = comment.post.id
+    comment = get_object_or_404(Comment, pk=pk) # Use pk for fetching
+    post_pk_val = comment.post.pk # Use .pk
     
     # Check if the comment belongs to the current user
     if comment.author == request.user:
@@ -180,7 +198,7 @@ def delete_comment(request, pk):
     else:
         messages.error(request, "You cannot delete this comment.")
     
-    return redirect('post-detail', pk=post_id)
+    return redirect('post-detail', pk=post_pk_val) # Use the fetched post_pk_val
 
 
 def tag_posts(request, tag_name):
@@ -230,11 +248,11 @@ def blog_ai_tools_dashboard(request):
         for app_label, models in model_data.items():
             output.append(f"<h3>{app_label}</h3>")
             for model_name, model_info in models.items():
-                output.append(f"<div style='margin-left: 20px;'>")
+                output.append("<div style='margin-left: 20px;'>")  # Removed f-string
                 output.append(f"<h4>{model_name}</h4>")
                 output.append(f"<p>Verbose name: {model_info['verbose_name']}</p>")
                 output.append(f"<p>Fields: {', '.join(model_info['fields'])}</p>")
-                output.append(f"</div>")
+                output.append("</div>")  # Removed f-string
         
         return HttpResponse("<br>".join(output))
     
@@ -244,5 +262,29 @@ def blog_ai_tools_dashboard(request):
 def desktop_only(request):
     """View for the desktop-only page shown to mobile users"""
     return render(request, 'blog/desktop_only.html', {'title': 'Desktop Only'})
+
+
+class SearchResultsView(ListView):
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) | 
+                Q(tags__name__icontains=query)
+            ).distinct().order_by('-date_posted')
+        return Post.objects.none() # Return no results if no query
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        context['popular_tags'] = Tag.objects.annotate(post_count=Count('posts')).order_by('-post_count')[:5]
+        context['random_quote'] = get_random_quote()
+        return context
 
 

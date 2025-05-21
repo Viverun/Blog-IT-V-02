@@ -98,5 +98,17 @@ class PostForm(forms.ModelForm):
                 for tag_name in tag_names:
                     tag, created = Tag.objects.get_or_create(name=tag_name)
                     post.tags.add(tag)
+        return post # Ensure the post instance is returned
 
-        return post
+
+class SearchForm(forms.Form):
+    query = forms.CharField(
+        label='',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control mr-sm-2',
+                'placeholder': 'Search Posts...',
+                'aria-label': 'Search'
+            }
+        )
+    )

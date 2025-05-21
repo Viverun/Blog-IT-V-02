@@ -13,7 +13,7 @@ import os
 import os.path
 from pathlib import Path
 
-from django.conf.global_settings import LOGIN_REDIRECT_URL, MEDIA_ROOT, MEDIA_URL
+from django.conf.global_settings import MEDIA_ROOT, MEDIA_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,7 +70,7 @@ ROOT_URLCONF = 'DJANGO_PROJECT.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # if you have a general templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,9 +78,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'blog.context_processors.popular_tags',
-                # Comment out the AI tools context processor until it's properly set up
-                # 'django_ai_tools.ai_context_processor',
+                'blog.context_processors.popular_tags', # Added popular_tags
+                'blog.context_processors.search_form_context', # Added search_form_context
             ],
         },
     },

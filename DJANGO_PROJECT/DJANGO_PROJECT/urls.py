@@ -77,7 +77,7 @@ urlpatterns = [
          
     # Include blog URLs last
     path('', include('blog.urls')),
-    path('summernote/', include('django_summernote.urls')),
+    # path('summernote/', include('django_summernote.urls')),
 ]
 
 # Serve media files in development

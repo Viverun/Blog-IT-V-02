@@ -26,25 +26,127 @@
     {% endif %}
 
     <style>
-  /* Navbar with gradient - add these styles to your existing CSS */
+  /* Navbar styling */
   .navbar {
-    background: linear-gradient(to right, #121212, #333333) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 0.75rem 1rem;
+    background: linear-gradient(to right, #1a1a1a, #2b2b2b) !important; /* Darker gradient */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Softer shadow */
+    padding: 0.8rem 1.5rem; /* Increased padding */
     transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom-left-radius: 5px; /* Added for curved edge */
-    border-bottom-right-radius: 5px; /* Added for curved edge */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Slightly more visible border */
+    border-bottom-left-radius: 8px; /* Smoother curve */
+    border-bottom-right-radius: 8px; /* Smoother curve */
   }
 
   .navbar-brand {
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.6rem; /* Slightly larger brand */
     letter-spacing: -0.5px;
-    background: linear-gradient(to right, #ffffff, #e0e0e0);
+    background: linear-gradient(to right, #f0f0f0, #d8d8d8); /* Lighter text gradient */
     -webkit-background-clip: text;
-    background-clip: text; /* Standard property */
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    transition: transform 0.2s ease-in-out;
+  }
+  .navbar-brand:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
+  }
+
+  .nav-link {
+    font-weight: 500;
+    padding: 0.6rem 1.2rem; /* Adjusted padding */
+    border-radius: 6px; /* Smoother radius */
+    margin: 0 0.3rem; /* Adjusted margin */
+    transition: all 0.25s ease;
+    color: var(--gray-400) !important; /* Lighter default color */
+    position: relative; /* For pseudo-elements */
+    overflow: hidden; /* For effects */
+  }
+
+  .nav-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: var(--gray-100);
+    transition: all 0.3s ease-in-out;
+    transform: translateX(-50%);
+  }
+
+  .nav-link:hover::before,
+  .nav-link:focus::before {
+    width: 70%; /* Underline effect on hover/focus */
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly more prominent hover */
+    transform: translateY(-2px); /* Lift effect */
+    color: white !important;
+  }
+
+  .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15); /* More distinct active state */
+    font-weight: 600;
+    color: white !important;
+  }
+  .nav-link.active::before {
+    width: 70%;
+    background-color: white;
+  }
+
+  /* Search form styling */
+  .navbar .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 20px 0 0 20px; /* Curved left side */
+    padding-left: 1rem;
+  }
+  .navbar .form-control::placeholder {
+    color: var(--gray-500);
+  }
+  .navbar .btn-outline-light {
+    border-radius: 0 20px 20px 0; /* Curved right side */
+    border-left: none;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+  .navbar .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* User profile dropdown */
+  .username-box {
+    padding: 0.5rem 1.1rem; /* Adjusted padding */
+    background-color: transparent; /* Make it blend with nav-link */
+    border: 1px solid rgba(255,255,255,0.2); /* Subtle border */
+  }
+  .username-box:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .username-box img.rounded-circle {
+    width: 28px; /* Slightly larger PFP */
+    height: 28px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .dropdown-menu-dark {
+    background-color: #222; /* Darker dropdown */
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  .dropdown-item {
+    color: var(--gray-300);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .dropdown-item:hover, .dropdown-item:focus {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+  }
+  .dropdown-divider {
+    border-top: 1px solid rgba(255,255,255,0.1);
   }
 
 </style>
@@ -425,14 +527,14 @@
     display: inline-flex;
     align-items: center;
     background-color: #000000;
-    color: white;
+    color: white !important; /* Ensure text color is white */
     border-radius: 50px;
     padding: 0.4rem 1rem;
     margin-right: 0.5rem;
     font-weight: 500;
     font-size: 0.9rem;
     transition: all 0.2s ease;
-    text-decoration: none;
+    text-decoration: none !important; /* Ensure no underline by default */
     position: relative;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   }
@@ -440,7 +542,26 @@
   .username-box:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    color: white;
+    color: white !important; /* Ensure text color is white on hover */
+    text-decoration: none !important; /* Ensure no underline on hover */
+  }
+
+  .username-box::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: -2px; /* Position the underline slightly below the text */
+    left: 0;
+    background-color: white; /* Color of the underline */
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+  }
+
+  .username-box:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
   }
   
   .username-box .fa-user-circle {
@@ -496,19 +617,20 @@
                     <div class="navbar-nav me-auto">
                         <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
                         <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
-                        <!-- Search Bar -->
-                        <form class="d-flex ms-auto me-3" action="{% url 'search_results' %}" method="get">
-                            <input class="form-control form-control-sm me-2" type="search" placeholder="Search posts..." aria-label="Search" name="q" value="{{ request.GET.q }}">
+                        <!-- Search Form -->
+                        <form class="d-flex ms-2 me-auto" method="GET" action="{% url 'search-results' %}">
+                            {{ search_form.query }} 
                             <button class="btn btn-outline-light btn-sm" type="submit"><i class="fas fa-search"></i></button>
                         </form>
                     </div>
                     <!-- Navbar Right Side -->
-                    <div class="navbar-nav">
+                    <div class="navbar-nav ms-auto">
                         {% if user.is_authenticated %}
                             <a class="nav-item nav-link" href="{% url 'post-create' %}" title="Create New Post"><i class="fas fa-plus-circle"></i> New Post</a>
                             <div class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle username-box" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> {{ user.username }}
+                                    <img src="{{ user.profile.image.url }}" alt="Profile Picture" class="rounded-circle me-2" style="width: 25px; height: 25px; object-fit: cover;">
+                                    {{ user.username }}
                                     {% if user.is_superuser %}
                                         <span class="admin-badge">Admin</span>
                                     {% endif %}
