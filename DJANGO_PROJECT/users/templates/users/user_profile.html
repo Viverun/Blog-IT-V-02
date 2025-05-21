@@ -132,7 +132,7 @@
                 <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
               </div>
               <div class="post-content">
-                <p>{{ post.content|truncatechars:150 }}</p>
+                <p>{{ post.content|safe|truncatechars:150 }}</p>
               </div>
               <div class="post-footer">
                 <a href="{% url 'post-detail' post.id %}" class="btn btn-sm btn-outline-primary">
