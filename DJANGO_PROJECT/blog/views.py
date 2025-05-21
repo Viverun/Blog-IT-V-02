@@ -241,4 +241,8 @@ def blog_ai_tools_dashboard(request):
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
 
+def desktop_only(request):
+    """View for the desktop-only page shown to mobile users"""
+    return render(request, 'blog/desktop_only.html', {'title': 'Desktop Only'})
+
 

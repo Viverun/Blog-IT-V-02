@@ -1,0 +1,98 @@
+{% extends "blog/base_minimal.html" %}
+{% load static %}
+
+{% block content %}
+<div class="desktop-only-container">
+    <div class="desktop-only-content">
+        <i class="fas fa-desktop desktop-icon"></i>
+        <h1>Desktop Only</h1>
+        <p>This website is optimized for desktop viewing only.</p>
+        <p>Please visit us on a desktop or laptop computer for the best experience.</p>
+        <div class="features-list">
+            <h3>Why Desktop?</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Better readability for technical content</li>
+                <li><i class="fas fa-check"></i> Enhanced interactive features</li>
+                <li><i class="fas fa-check"></i> Optimized code display and formatting</li>
+                <li><i class="fas fa-check"></i> Improved navigation experience</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .desktop-only-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 2rem;
+    }
+    
+    .desktop-only-content {
+        background: white;
+        padding: 3rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 600px;
+    }
+    
+    .desktop-icon {
+        font-size: 4rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+    }
+    
+    h1 {
+        font-weight: 800;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+    
+    p {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .features-list {
+        margin-top: 2rem;
+        text-align: left;
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+    }
+    
+    .features-list h3 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #333;
+        text-align: center;
+    }
+    
+    .features-list ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .features-list li {
+        padding: 0.75rem 0;
+        color: #555;
+        display: flex;
+        align-items: center;
+    }
+    
+    .features-list li i {
+        color: #28a745;
+        margin-right: 0.75rem;
+    }
+</style>
+{% endblock content %}

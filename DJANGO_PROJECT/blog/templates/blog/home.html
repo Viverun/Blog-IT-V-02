@@ -465,67 +465,6 @@
         background: linear-gradient(90deg, transparent, rgba(0,0,0,0.2));
     }
 
-    @media (max-width: 992px) {
-        .welcome-container {
-            flex-direction: column;
-        }
-        
-        .welcome-content, .welcome-quote {
-            padding: 2.5rem;
-        }
-        
-        .welcome-title {
-            font-size: 2.8rem;
-        }
-        
-        .welcome-subtitle {
-            max-width: 100%;
-        }
-        
-        .quote-card {
-            margin: 1rem auto 0;
-            width: 90%;
-        }
-        
-        .accent-shape-1 {
-            width: 200px;
-            height: 200px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .welcome-content {
-            padding: 2rem 1.5rem;
-        }
-        
-        .welcome-title {
-            font-size: 2.2rem;
-        }
-        
-        .welcome-subtitle {
-            font-size: 1.1rem;
-            padding-left: 1rem;
-        }
-        
-        .welcome-divider {
-            width: 100%;
-        }
-        
-        .welcome-cta {
-            padding: 0.9rem 1.6rem;
-            font-size: 1rem;
-        }
-        
-        .quote-card {
-            padding: 2rem;
-        }
-        
-        .quote-text {
-            font-size: 1.1rem;
-            margin-left: 1rem;
-        }
-    }
-
     /* Enhanced Blog Post Card Styling */
     .media.content-section {
         border-radius: 16px;
@@ -922,41 +861,6 @@
         .post-stats {
             width: 100%;
             justify-content: space-between;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .article-metadata {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
-        .post-categories {
-            margin-left: 0 !important;
-            margin-top: 0.5rem;
-        }
-
-        .pagination .page-link {
-            padding: 0.4rem 0.6rem;
-            font-size: 0.9rem;
-        }
-
-        .welcome-title {
-            font-size: 1.8rem;
-        }
-
-        .welcome-subtitle {
-            font-size: 1rem;
-        }
-
-        .featured-categories {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .featured-category-tags {
-            margin-top: 0.5rem;
         }
     }
 
@@ -1850,9 +1754,7 @@
                         
                         <div class="post-footer">
                             <div class="post-stats">
-                                <span class="post-stat"><i class="far fa-eye"></i> </span>
-                                <!-- <span class="post-stat"><i class="far fa-comment"></i> {% widthratio post.id 2 7 %}</span>
-                                <span class="post-stat"><i class="far fa-heart"></i> {% widthratio post.id 3 42 %}</span> -->
+                                <!-- Removed eye icon span here -->
                             </div>
                             <a href="{% url 'post-detail' post.id %}" class="read-more">
                                 Read more <i class="fas fa-arrow-right ms-1"></i>

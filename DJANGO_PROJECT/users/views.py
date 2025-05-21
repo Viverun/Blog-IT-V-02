@@ -1,21 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
-# from django.contrib.auth.forms import UserCreationForm
+# from django.contrib.auth.forms import UserCreationForm # Removed commented-out import
 from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
-
-# Import our AI tools
-from django_ai_tools import get_model_structure, generate_view_context
+# from django.core.exceptions import PermissionDenied # Removed unused import
 
 def custom_logout(request):
     logout(request)
     # Force clear the session
     request.session.flush()
-    # messages.success(request, 'You have been successfully logged out.')
+    # messages.success(request, 'You have been successfully logged out.') # Removed commented-out message
     return render(request, 'users/logout.html')
 
 def register(request):
@@ -23,8 +19,7 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f"Your Account has been created! You are now able to Login!")
+            messages.success(request, "Your Account has been created! You are now able to Login!")
             return redirect('login')
     else:
         form = UserRegisterForm()
@@ -66,37 +61,3 @@ def profile(request):
     }
 
     return render(request, 'users/profile.html', context)
-
-@login_required
-def profile_ai_assist(request):
-    """
-    Endpoint that provides AI-assisted suggestions for user profiles.
-    This view demonstrates how AI tools can be integrated into your app.
-    """
-    # Check if it's an AI assistance request
-    if request.GET.get('ai_assist') == 'true':
-        # Generate rich context for AI tools
-        context_data = generate_view_context(request, 
-            user_info={
-                'id': request.user.id,
-                'username': request.user.username,
-                'email': request.user.email,
-                'date_joined': request.user.date_joined.isoformat(),
-                'last_login': request.user.last_login.isoformat() if request.user.last_login else None,
-                'is_staff': request.user.is_staff,
-                'is_active': request.user.is_active,
-            }
-        )
-        
-        # Get model structure for the User and Profile models
-        model_data = get_model_structure('users')
-        
-        # Return JSON response with combined data
-        return JsonResponse({
-            'context': context_data,
-            'model_data': model_data,
-            'message': "This endpoint provides data for AI tools to assist with user profiles."
-        })
-    
-    # Regular request - redirect to profile page
-    return redirect('profile')

@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'django_summernote',
-    'mcp_server',  # Add the mcp_server app
+    # 'mcp_server',  # Add the mcp_server app # Removed as MCP server functionality is being decommissioned
 ]
 
 MIDDLEWARE = [
@@ -80,7 +80,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'blog.context_processors.popular_tags',
                 # Comment out the AI tools context processor until it's properly set up
-                'django_ai_tools.ai_context_processor',
+                # 'django_ai_tools.ai_context_processor',
             ],
         },
     },
@@ -149,10 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK='bootstrap5'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 LOGIN_REDIRECT_URL = 'blog-home'
-# LOGOUT_REDIRECT_URL = '/'  # Redirect to homepage after
-SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-# LOGIN_REDIRECT_URL = '/'  # Redirect to homepage after login
 LOGOUT_REDIRECT_URL = '/'  # Redirect to homepage after logout
 LOGOUT_RESET_REDIRECT = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -161,9 +157,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # Password reset email settings
-# Comment out the console backend for now
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_DEBUG = True  # Enable more verbose logging
 
 # Use Gmail SMTP configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -223,7 +216,7 @@ SUMMERNOTE_CONFIG = {
 }
 
 # Add the MCP server URL
-MCP_SERVER_URL = 'http://localhost:8080'
+# MCP_SERVER_URL = 'http://localhost:8080' # Removed as MCP server functionality is being decommissioned
 
 # Security settings for production
 if not DEBUG:
