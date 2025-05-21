@@ -102,13 +102,15 @@ class PostForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    query = forms.CharField(
-        label='',
+    q = forms.CharField(
         widget=forms.TextInput(
             attrs={
-                'class': 'form-control mr-sm-2',
-                'placeholder': 'Search Posts...',
-                'aria-label': 'Search'
+                "class": "form-control me-2",
+                "type": "search",
+                "placeholder": "Search posts...",
+                "aria-label": "Search",
+                "style": "border-radius: 20px 0 0 20px; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #ffffff !important; padding-left: 1rem;" 
             }
-        )
+        ),
+        label=""
     )

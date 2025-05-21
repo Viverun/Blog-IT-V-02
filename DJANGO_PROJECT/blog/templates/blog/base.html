@@ -100,7 +100,7 @@
   .navbar .form-control {
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    color: #ffffff !important; /* Changed to white for visibility */
     border-radius: 20px 0 0 20px; /* Curved left side */
     padding-left: 1rem;
   }
@@ -619,7 +619,7 @@
                         <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
                         <!-- Search Form -->
                         <form class="d-flex ms-2 me-auto" method="GET" action="{% url 'search-results' %}">
-                            {{ search_form.query }} 
+                            {{ search_form.q }} 
                             <button class="btn btn-outline-light btn-sm" type="submit"><i class="fas fa-search"></i></button>
                         </form>
                     </div>

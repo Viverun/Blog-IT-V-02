@@ -2,295 +2,284 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <style>
-    /* Hide link previews */
-    a {
-        text-decoration: none;
+    .profile-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     }
-    a[title] {
-        position: relative;
+
+    .profile-header-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e0e5ec 100%);
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #d1d9e6;
     }
-    a[title]:hover::after {
-        content: "";
-        display: none;
+
+    .profile-image-wrapper {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto 1.5rem; /* Center and add bottom margin */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        border: 5px solid #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .profile-image-wrapper:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info .account-heading {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    .profile-info .text-secondary {
+        font-size: 1.1rem;
+        color: #555 !important;
+    }
+    .profile-info .text-muted {
+        font-size: 0.95rem;
+        color: #777 !important;
+    }
+    .user-bio {
+        background-color: rgba(255,255,255,0.5);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-style: italic;
+        color: #444;
+        border-left: 3px solid var(--primary);
+    }
+
+    .social-links .btn {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem; /* For wrapping on small screens */
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+    }
+    .social-links .btn i {
+        margin-right: 0.4rem;
+    }
+    .social-links .btn-outline-info { border-color: #17a2b8; color: #17a2b8; }
+    .social-links .btn-outline-info:hover { background-color: #17a2b8; color: white; }
+    .social-links .btn-outline-primary { border-color: #007bff; color: #007bff; }
+    .social-links .btn-outline-primary:hover { background-color: #007bff; color: white; }
+    .social-links .btn-outline-dark { border-color: #343a40; color: #343a40; }
+    .social-links .btn-outline-dark:hover { background-color: #343a40; color: white; }
+
+    .profile-edit-card {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+    .profile-edit-card .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #eee;
+    }
+    .profile-edit-card .card-subtitle {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 1rem;
+    }
+    .form-section-card {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .current-profile-image-display img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #ddd;
+        margin-right: 1rem;
+    }
+    .custom-file-input-label {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.3rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .custom-file-input-label:hover {
+        background-color: var(--primary-hover);
+    }
+    #id_image { /* Assuming 'image' is the id of your file input */
+        opacity: 0;
+        position: absolute;
+        z-index: -1;
+    }
+    .form-group label {
+        font-weight: 500;
+        color: #444;
+    }
+    .btn-save-profile {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .btn-save-profile:hover {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+    .btn-cancel-profile {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+    .form-text.text-muted {
+        font-size: 0.85rem;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 767px) {
+        .profile-header-card .row > div {
+            text-align: center !important;
+        }
+        .profile-info .account-heading {
+            font-size: 1.6rem;
+        }
+        .social-links {
+            justify-content: center;
+        }
+        .profile-container {
+            margin: 1rem;
+            padding: 1rem;
+        }
+        .profile-header-card, .profile-edit-card {
+            padding: 1.5rem;
+        }
     }
 </style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get all links in the document
-        const links = document.querySelectorAll('a');
 
-        // For each link
-        links.forEach(link => {
-            // Remove any title attribute that might show on hover
-            if (link.hasAttribute('title')) {
-                link.removeAttribute('title');
-            }
-
-            // Add a blank rel attribute to prevent showing URL in status bar
-            link.setAttribute('rel', 'noopener');
-        });
-    });
-</script>
-<div class="content-section">
-  <!-- Profile Header -->
-  <div class="profile-header bg-light rounded p-4 mb-4 shadow-sm">
-    <div class="row align-items-center">
-      <div class="col-md-3 text-center mb-3 mb-md-0">
-        <div class="profile-image-container">
-          <img class="profile-image" src="{{ user.profile.image.url }}" alt="Profile Picture">
-        
-        </div>
-      </div>
-      <div class="col-md-9">
-        <div class="profile-info">
-          <h2 class="account-heading mb-2 d-flex align-items-center">
-            <span>{{ user.username }}</span>
-            <span class="badge badge-pill badge-primary ml-2">Active</span>
-          </h2>
-          <p class="text-secondary mb-2">
-            <i class="fas fa-envelope mr-2"></i>{{ user.email }}
-          </p>
-          <p class="text-muted">
-            <i class="fas fa-calendar-alt mr-2"></i>Member since {{ user.profile.join_date|date:"F d, Y" }}
-          </p>
-          <!-- Bio section -->
-          {% if user.profile.bio %}
-          <div class="user-bio mt-3 mb-2">
-            <p class="bio-text">{{ user.profile.bio }}</p>
-          </div>
-          {% endif %}
-          <!-- Social Links -->
-          <div class="social-links mt-3">
-            {% if user.profile.twitter_url %}
-              <a href="{{ user.profile.twitter_url }}" target="_blank" class="btn btn-outline-info btn-sm me-2"><i class="fab fa-twitter"></i> Twitter</a>
-            {% endif %}
-            {% if user.profile.linkedin_url %}
-              <a href="{{ user.profile.linkedin_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
-            {% endif %}
-            {% if user.profile.github_url %}
-              <a href="{{ user.profile.github_url }}" target="_blank" class="btn btn-outline-dark btn-sm"><i class="fab fa-github"></i> GitHub</a>
-            {% endif %}
-          </div>
-          <div class="profile-stats d-flex flex-wrap mt-3">
-<!--            <div class="stat-item">-->
-<!--              <strong>0</strong>-->
-<!--              <div class="text-muted small">Posts</div>-->
-<!--            </div>-->
-<!--            <div class="stat-item">-->
-<!--              <strong>0</strong>-->
-<!--              <div class="text-muted small">Followers</div>-->
-<!--            </div>-->
-<!--            <div class="stat-item">-->
-<!--              <strong>0</strong>-->
-<!--              <div class="text-muted small">Following</div>-->
-<!--            </div>-->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profile Edit Form -->
-  <div class="card border-0 shadow-sm">
-    <div class="card-body p-4">
-      <h4 class="card-title mb-4">
-        <i class="fas fa-user-edit mr-2 text-primary"></i>Edit Your Profile
-      </h4>
-
-      <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <div class="row">
-          <div class="col-12">
-            <legend class="border-bottom pb-2 mb-4">
-              <span class="text-muted small">PERSONAL INFORMATION</span>
-            </legend>
-          </div>
-
-          <!-- User Form -->
-          <div class="col-md-6 mb-4">
-            <div class="card h-100 border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-subtitle mb-3 text-muted">
-                  <i class="fas fa-id-card mr-2"></i>Account Details
-                </h5>
-                {{ u_form|crispy }}
-              </div>
+<div class="profile-container">
+    <!-- Profile Header Card -->
+    <div class="profile-header-card text-center text-md-start">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <div class="profile-image-wrapper">
+                    <img class="profile-image" src="{{ user.profile.image.url }}" alt="{{ user.username }}'s Profile Picture">
+                </div>
             </div>
-          </div>
-
-          <!-- Profile Form - Improved -->
-          <div class="col-md-6 mb-4">
-            <div class="card h-100 border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-subtitle mb-3 text-muted">
-                  <i class="fas fa-camera mr-2"></i>Profile Image, Bio & Socials
-                </h5>
-                <div class="current-image mb-3">
-                  <label class="font-weight-bold mb-2">Currently:</label>
-                  <div class="d-flex align-items-center">
-                    <div class="current-profile-image mr-3">
-                      <img src="{{ user.profile.image.url }}" alt="Current profile image">
+            <div class="col-md-9">
+                <div class="profile-info">
+                    <h2 class="account-heading d-flex align-items-center justify-content-center justify-content-md-start">
+                        {{ user.username }}
+                        {% if user.is_superuser %}
+                            <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem; padding: 0.3em 0.6em;">ADMIN</span>
+                        {% endif %}
+                    </h2>
+                    <p class="text-secondary mb-1"><i class="fas fa-envelope me-2 opacity-75"></i>{{ user.email }}</p>
+                    <p class="text-muted mb-2"><i class="fas fa-calendar-alt me-2 opacity-75"></i>Joined: {{ user.profile.join_date|date:"F d, Y" }}</p>
+                    
+                    {% if user.profile.bio %}
+                    <div class="user-bio">
+                        <p class="mb-0">{{ user.profile.bio }}</p>
                     </div>
-                    <small class="text-muted">{{ user.profile.image.name|default:"profile_pics/default.jpg" }}</small>
-                  </div>
-                </div>
-                <div class="custom-file-container">
-                  {{ p_form.image|as_crispy_field }}
-                  {{ p_form.bio|as_crispy_field }}
-                </div>
-                <h5 class="card-subtitle mt-4 mb-3 text-muted">
-                    <i class="fas fa-share-alt mr-2"></i>Social Media Links
-                </h5>
-                {{ p_form.twitter_url|as_crispy_field }}
-                {{ p_form.linkedin_url|as_crispy_field }}
-                {{ p_form.github_url|as_crispy_field }}
-                <small class="text-muted mt-2 d-block">
-                  <i class="fas fa-info-circle mr-1"></i>For best results, upload a square image.
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
+                    {% endif %}
 
-        <div class="form-group text-center mt-3">
-          <button class="btn btn-primary px-5" type="submit">
-            <i class="fas fa-save mr-2"></i>Save Changes
-          </button>
-          <a href="{% url 'blog-home' %}" class="btn btn-outline-secondary ml-2">
-            <i class="fas fa-times mr-2"></i>Cancel
-          </a>
+                    <div class="social-links mt-3 d-flex flex-wrap justify-content-center justify-content-md-start">
+                        {% if user.profile.twitter_url %}
+                            <a href="{{ user.profile.twitter_url }}" target="_blank" class="btn btn-outline-info"><i class="fab fa-twitter"></i> Twitter</a>
+                        {% endif %}
+                        {% if user.profile.linkedin_url %}
+                            <a href="{{ user.profile.linkedin_url }}" target="_blank" class="btn btn-outline-primary"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
+                        {% endif %}
+                        {% if user.profile.github_url %}
+                            <a href="{{ user.profile.github_url }}" target="_blank" class="btn btn-outline-dark"><i class="fab fa-github"></i> GitHub</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
-      </form>
     </div>
-  </div>
+
+    <!-- Profile Edit Form Card -->
+    <div class="profile-edit-card">
+        <h4 class="card-title"><i class="fas fa-user-edit me-2 text-primary"></i>Edit Your Profile</h4>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <!-- Account Details Section -->
+                <div class="col-lg-6 mb-4">
+                    <div class="form-section-card h-100">
+                        <h5 class="card-subtitle"><i class="fas fa-id-card me-2 opacity-75"></i>Account Details</h5>
+                        {{ u_form.username|as_crispy_field }}
+                        {{ u_form.email|as_crispy_field }}
+                    </div>
+                </div>
+
+                <!-- Profile Details Section -->
+                <div class="col-lg-6 mb-4">
+                    <div class="form-section-card h-100">
+                        <h5 class="card-subtitle"><i class="fas fa-user-circle me-2 opacity-75"></i>Profile Details</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Current Profile Picture:</label>
+                            <div class="d-flex align-items-center current-profile-image-display">
+                                <img src="{{ user.profile.image.url }}" alt="Current profile image">
+                                <small class="text-muted">{{ user.profile.image.name|default:"profile_pics/default.jpg" }}</small>
+                            </div>
+                        </div>
+                        {{ p_form.image|as_crispy_field }}
+                        <small class="form-text text-muted mb-3 d-block">
+                            <i class="fas fa-info-circle me-1"></i>For best results, upload a square image. Max 2MB.
+                        </small>
+                        
+                        {{ p_form.bio|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Links Section -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="form-section-card">
+                        <h5 class="card-subtitle"><i class="fas fa-share-alt me-2 opacity-75"></i>Social Media Links</h5>
+                        <div class="row">
+                            <div class="col-md-4">{{ p_form.twitter_url|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ p_form.linkedin_url|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ p_form.github_url|as_crispy_field }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group text-center mt-3">
+                <button class="btn btn-save-profile" type="submit">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+                <a href="{% url 'blog-home' %}" class="btn btn-outline-secondary ms-2 btn-cancel-profile">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<style>
-  /* Profile image improvements */
-  .profile-image-container {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    margin: 0 auto;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    border: 4px solid white;
-  }
-
-  .profile-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .profile-image-container:hover .profile-image {
-    transform: scale(1.05);
-  }
-
-  .photo-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(86, 104, 193, 0.75);
-    color: white;
-    padding: 6px 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    font-size: 0.8rem;
-    text-align: center;
-  }
-
-  .profile-image-container:hover .photo-overlay {
-    opacity: 1;
-  }
-
-  /* Bio styling */
-  .user-bio {
-    background-color: rgba(255,255,255,0.7);
-    border-radius: 8px;
-    padding: 10px 15px;
-    border-left: 3px solid var(--primary-color);
-  }
-
-  .bio-text {
-    margin-bottom: 0;
-    font-style: italic;
-    color: var(--text-dark);
-  }
-
-  /* Current image preview */
-  .current-profile-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #eee;
-  }
-
-  .current-profile-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Stats styling */
-  .profile-stats {
-    background-color: rgba(255,255,255,0.5);
-    border-radius: 8px;
-    padding: 8px;
-  }
-
-  .stat-item {
-    padding: 0 15px;
-    border-right: 1px solid #e0e0e0;
-    text-align: center;
-  }
-
-  .stat-item:last-child {
-    border-right: none;
-  }
-
-  /* Form styling improvements */
-  .custom-file-container .custom-file-input:lang(en)~.custom-file-label::after {
-    content: "Browse";
-    background-color: var(--primary-color);
-    color: white;
-  }
-
-  /* Profile header styling */
-  .profile-header {
-    border-left: 4px solid var(--primary-color);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .profile-header::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: radial-gradient(circle at top right, rgba(86, 104, 193, 0.1), transparent 70%);
-    pointer-events: none;
-  }
-
-  /* Badge styling */
-  .badge-primary {
-    background-color: var(--primary-color);
-    font-weight: 400;
-    padding: 0.4em 0.8em;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 767px) {
-    .profile-stats {
-      justify-content: center;
-    }
-  }
-</style>
 {% endblock content %}
