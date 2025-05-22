@@ -41,6 +41,11 @@ else
     exit 1
 fi
 
+# Python path and module import check
+echo "--- Python Path and Module Import Check ---"
+python -c "import sys; print('sys.path:', sys.path); import cloudinary_storage; print('cloudinary_storage imported successfully')" || echo "Failed to import cloudinary_storage directly"
+echo "--- End Python Path and Module Import Check ---"
+
 # Collect static files
 echo "Attempting to collect static files with: python $MANAGE_PATH collectstatic --no-input"
 python $MANAGE_PATH collectstatic --no-input
