@@ -1,1 +1,1 @@
-web: cd DJANGO_PROJECT && python -m gunicorn DJANGO_PROJECT.wsgi:application
+web: python -m gunicorn DJANGO_PROJECT.DJANGO_PROJECT.wsgi:application --log-file -
