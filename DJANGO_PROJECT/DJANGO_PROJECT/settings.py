@@ -120,12 +120,11 @@ DATABASES = {
         conn_health_checks=True,
         # SSL is typically required for production PostgreSQL databases
         # On Render, DATABASE_URL usually includes sslmode=require if needed.
-        # If not, set ssl_require=True if not DEBUG.        ssl_require=(not DEBUG and os.environ.get('DATABASE_URL', '').startswith('postgres'))
+        # If not, set ssl_require=True if not DEBUG.
+        ssl_require=(not DEBUG and os.environ.get('DATABASE_URL', '').startswith('postgres'))
     )
 }
-# Print database information safely
-db_engine = DATABASES['default'].get('ENGINE', 'unknown')
-print(f"INFO: Database Engine = {db_engine}")
+print(f"INFO: Database Engine = {DATABASES['default']['ENGINE']}")
 
 
 # --- Password validation ---
@@ -147,13 +146,18 @@ USE_TZ = True
 
 
 # --- Cloudinary Configuration ---
-# Initialize Cloudinary settings dictionary
+# django-cloudinary-storage will automatically pick up CLOUDINARY_URL from env variables.
+# Or, it will use CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET if set.
+# This CLOUDINARY_STORAGE dict is for additional options.
 CLOUDINARY_STORAGE = {
     'SECURE': True,  # Always serve images over HTTPS
     'PREFIX': 'media', # Optional: All media files will be uploaded to a 'media/' folder in Cloudinary
+    # 'TAGS': ['my_blog_app_uploads'], # Optional: Default tags for all uploads
+    # 'RESOURCE_TYPE': 'auto', # Or 'image', 'video', 'raw'
 }
 
 # --- Storage Settings (Django 4.2+) ---
+# https://docs.djangoproject.com/en/dev/ref/settings/#storages
 DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage" # Default for DEBUG
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" # Good for Render
 
@@ -162,75 +166,46 @@ if not DEBUG:
     cloudinary_url_env = os.environ.get("CLOUDINARY_URL")
     cloudinary_name_env = os.environ.get("CLOUDINARY_CLOUD_NAME")
 
-    if cloudinary_url_env:
+    if cloudinary_url_env or (cloudinary_name_env and os.environ.get("CLOUDINARY_API_KEY")):
+        # If CLOUDINARY_URL is set, it takes precedence and django-cloudinary-storage uses it
+        # to configure the cloudinary SDK.
+        # If individual CLOUDINARY_CLOUD_NAME, API_KEY, API_SECRET are set, it uses those.
+        DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+        print("INFO: Cloudinary configured as the default media storage.")
+
+        # Example check that Cloudinary SDK *could* be configured (actual config happens inside storage backend)
         try:
-            # Parse the Cloudinary URL using regex
-            import re
-            # Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-            pattern = r"cloudinary://([^:]+):([^@]+)@([^/]+)"
-            match = re.match(pattern, cloudinary_url_env)
-            
-            if match:
-                api_key = match.group(1)
-                api_secret = match.group(2)
-                cloud_name = match.group(3)
-                  # Configure Cloudinary SDK
-                cloudinary.config(
-                    cloud_name=cloud_name,
-                    api_key=api_key,
-                    api_secret=api_secret,
-                    secure=True
-                )
-                
-                # Update CLOUDINARY_STORAGE dictionary
-                CLOUDINARY_STORAGE.update({
-                    "CLOUD_NAME": cloud_name,
-                    "API_KEY": api_key,
-                    "API_SECRET": api_secret,
-                })
-                
-                # Configure DEFAULT_FILE_STORAGE to use Cloudinary
-                DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-                
-                # Mask sensitive information in logs
-                masked_key = api_key[:4] + "*" * (len(api_key) - 4) if api_key and len(api_key) > 4 else "****"
-                print(f"INFO: Cloudinary configured from CLOUDINARY_URL: cloud_name={cloud_name}, api_key={masked_key}")
+            # Note: django-cloudinary-storage does the actual config when needed.
+            # This is just a proactive check that creds *might* be available to the core SDK.
+            if cloudinary_url_env:
+                 cloudinary_config_check = cloudinary.CloudinaryConfig(cloudinary_url=cloudinary_url_env)
             else:
-                print("ERROR: CLOUDINARY_URL format invalid! Expected format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME")
+                 cloudinary_config_check = cloudinary.CloudinaryConfig(
+                    cloud_name=cloudinary_name_env,
+                    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+                    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+                )
+            if cloudinary_config_check.cloud_name:
+                print(f"INFO: Cloudinary SDK check indicates cloud_name '{cloudinary_config_check.cloud_name}' could be resolved.")
+            else:
+                print("WARNING: Cloudinary SDK check could not resolve cloud_name from environment variables. Uploads may fail.")
         except Exception as e:
-            print(f"ERROR configuring Cloudinary from URL: {str(e)}")
-    
-    # Alternative: Use individual Cloudinary credentials if URL is not provided
-    elif cloudinary_name_env and os.environ.get("CLOUDINARY_API_KEY") and os.environ.get("CLOUDINARY_API_SECRET"):
-        try:
-            cloud_name = cloudinary_name_env
-            api_key = os.environ.get("CLOUDINARY_API_KEY")
-            api_secret = os.environ.get("CLOUDINARY_API_SECRET")
-            
-            # Configure Cloudinary SDK
-            cloudinary.config(
-                cloud_name=cloud_name,
-                api_key=api_key,
-                api_secret=api_secret,
-                secure=True
-            )
-            
-            # Update CLOUDINARY_STORAGE dictionary
-            CLOUDINARY_STORAGE.update({
-                "CLOUD_NAME": cloud_name,
-                "API_KEY": api_key,
-                "API_SECRET": api_secret,
-            })
-              # Configure DEFAULT_FILE_STORAGE to use Cloudinary
-            DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-            
-            # Mask sensitive information in logs
-            masked_key = api_key[:4] + "*" * (len(api_key) - 4) if api_key and len(api_key) > 4 else "****"
-            print(f"INFO: Cloudinary configured from individual variables: cloud_name={cloud_name}, api_key={masked_key}")
-        except Exception as e:
-            print(f"ERROR configuring Cloudinary from individual variables: {str(e)}")
+            print(f"WARNING: Error during preliminary Cloudinary config check: {e}. Uploads may fail.")
+
+    # Optional S3 fallback logic (uncomment and configure if needed)
+    # elif 'AWS_ACCESS_KEY_ID' in os.environ:
+    #     if 'storages' not in INSTALLED_APPS:
+    #         INSTALLED_APPS.append('storages') # Ensure 'storages' (django-storages) is installed
+    #     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    #     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    #     AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+    #     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+    #     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    #     AWS_DEFAULT_ACL = 'public-read' # Or None for private access
+    #     # AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY will be picked from env by boto3
+    #     print("INFO: AWS S3 configured as the default media storage.")
     else:
-        print("WARNING: In PRODUCTION (DEBUG=False), but no Cloudinary credentials found in environment variables.")
+        print("WARNING: In PRODUCTION (DEBUG=False), but no Cloudinary (or S3) credentials found in env variables.")
         print("Defaulting to FileSystemStorage for media. THIS IS NOT RECOMMENDED FOR RENDER and can lead to data loss.")
 
 STORAGES = {
