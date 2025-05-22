@@ -220,6 +220,26 @@ if not DEBUG:
             "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         }
 
+if not DEBUG:
+    cloudinary_url = os.environ.get("CLOUDINARY_URL")
+    if cloudinary_url:
+        # Parse the URL manually
+        import re
+        m = re.match(r"cloudinary://(\w+):(\w+)@([\w\-]+)", cloudinary_url)
+        if m:
+            CLOUDINARY_STORAGE = {
+                "CLOUD_NAME": m.group(3),
+                "API_KEY": m.group(1),
+                "API_SECRET": m.group(2),
+            }
+            STORAGES["default"] = {
+                "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+            }
+        else:
+            print("CLOUDINARY_URL format invalid!")
+    else:
+        print("CLOUDINARY_URL not set in environment!")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
