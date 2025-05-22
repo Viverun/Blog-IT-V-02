@@ -168,6 +168,50 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+# For production media file storage
+if not DEBUG:
+    # Check for Cloudinary configuration
+    if 'CLOUDINARY_URL' in os.environ:
+        INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
+        
+        # Cloudinary settings
+        CLOUDINARY_STORAGE = {
+            'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+            'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+            'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+        }
+        
+        # Use Cloudinary for media files in production
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# For production media file storage
+if not DEBUG:
+    # Use cloudinary or AWS S3 if available in environment
+    if 'CLOUDINARY_URL' in os.environ:
+        import cloudinary
+        import cloudinary.uploader
+        import cloudinary.api
+        
+        # Cloudinary config from environment
+        CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+        
+        # Add Cloudinary to installed apps
+        INSTALLED_APPS += ['cloudinary']
+        
+        # Cloudinary storage settings
+        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    elif 'AWS_ACCESS_KEY_ID' in os.environ:
+        # AWS S3 configuration
+        AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+        AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+        AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+        AWS_DEFAULT_ACL = 'public-read'
+        
+        # Static and media file storage
+        DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

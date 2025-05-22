@@ -1,4 +1,5 @@
 {% extends "blog/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
 <style>
@@ -38,6 +39,72 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    /* Custom file upload styling */
+    .custom-file-upload {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .custom-file-input-label {
+        display: inline-block;
+        background-color: #4e73df;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.3rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .custom-file-input-label:hover {
+        background-color: #375bcd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    #id_image {
+        opacity: 0;
+        position: absolute;
+        z-index: -1;
+    }
+    
+    .current-profile-image-display {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .current-profile-image-display img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #ddd;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-success-indicator {
+        color: #28a745;
+        font-weight: 500;
+        padding: 0.3rem 0.7rem;
+        border-radius: 50px;
+        background-color: rgba(40, 167, 69, 0.1);
+        display: inline-flex;
+        align-items: center;
+        margin-left: 1rem;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .upload-success-indicator i {
+        margin-right: 0.3rem;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .profile-info .account-heading {
@@ -122,15 +189,213 @@
         border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
+    }    /* Modern profile image upload styling */
+    .profile-image-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1.5rem;
     }
-    .current-profile-image-display img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
+    
+    .current-image-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
-        border: 3px solid #ddd;
-        margin-right: 1rem;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 4px solid #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
+    
+    .current-image-wrapper:hover .image-overlay {
+        opacity: 1;
+    }
+    
+    .current-image-wrapper.selected-new-image {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2);
+    }
+    
+    #profile-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+    
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .image-overlay i {
+        color: white;
+        font-size: 1.8rem;
+    }
+    
+    .image-details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .image-name-badge {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 0.4rem 0.8rem;
+        margin-bottom: 0.8rem;
+        font-size: 0.85rem;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        max-width: 100%;
+    }
+    
+    .image-name-badge i {
+        margin-right: 0.5rem;
+        color: var(--primary);
+    }
+    
+    .image-input-container {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+    
+    .image-guidelines {
+        margin-top: 1.2rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 0.8rem 1rem;
+        width: 100%;
+    }
+    
+    .guideline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: #555;
+    }
+    
+    .guideline-item i {
+        margin-right: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    .guideline-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    #upload-feedback {
+        min-height: 1.8rem;
+        width: 100%;
+        text-align: center;
+    }
+      /* Upload progress animation */
+    .upload-progress-container {
+        width: 100%;
+        margin-top: 0.5rem;
+        display: none;
+    }
+    
+    .upload-progress-bar {
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
+        background-size: 200% 100%;
+        animation: progress-animation 1.5s infinite linear;
+        border-radius: 2px;
+    }
+    
+    @keyframes progress-animation {
+        0% { background-position: 100% 0; }
+        100% { background-position: 0 0; }
+    }
+    
+    .upload-complete-animation {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: #28a745;
+        color: white;
+        margin-right: 0.5rem;
+        transform: scale(0);
+        animation: pop-in 0.4s ease forwards;
+    }
+    
+    @keyframes pop-in {
+        0% { transform: scale(0); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+      .upload-success, .upload-error, .upload-warning, .upload-info {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        animation: fadeInUp 0.3s ease;
+    }
+    
+    .upload-success {
+        color: #155724;
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .upload-error {
+        color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .upload-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+    }
+    
+    .upload-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+    }
+    
+    .upload-success i, .upload-error i, .upload-warning i, .upload-info i {
+        margin-right: 0.5rem;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
     .custom-file-input-label {
         background-color: var(--primary);
         color: white;
@@ -188,9 +453,11 @@
         }
         .profile-header-card, .profile-edit-card {
             padding: 1.5rem;
-        }
-    }
+        }    }
 </style>
+
+<!-- Include JS for enhanced profile image handling -->
+<script src="{% static 'blog/modern-profile-image.js' %}"></script>
 
 <div class="profile-container">
     <!-- Profile Header Card -->
@@ -257,19 +524,54 @@
 
                 <!-- Profile Details Section -->
                 <div class="col-lg-6 mb-4">
-                    <div class="form-section-card h-100">
-                        <h5 class="card-subtitle"><i class="fas fa-user-circle me-2 opacity-75"></i>Profile Details</h5>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Current Profile Picture:</label>
-                            <div class="d-flex align-items-center current-profile-image-display">
-                                <img src="{{ user.profile.image.url }}" alt="Current profile image">
-                                <small class="text-muted">{{ user.profile.image.name|default:"profile_pics/default.jpg" }}</small>
+                    <div class="form-section-card h-100">                        <h5 class="card-subtitle"><i class="fas fa-user-circle me-2 opacity-75"></i>Profile Details</h5>
+                          <!-- Modern Profile Image Upload Section -->
+                        <div class="profile-image-container mb-4">
+                            <h5 class="card-subtitle mb-3"><i class="fas fa-portrait me-2 opacity-75"></i>Profile Picture</h5>
+                            
+                            <div class="current-image-wrapper">
+                                <img src="{{ user.profile.image.url }}" alt="Current profile image" id="profile-preview">
+                                <div class="image-overlay">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="image-details">
+                                <div class="image-name-badge">
+                                    <i class="fas fa-image"></i>
+                                    <span id="image-filename">{{ user.profile.image.name|default:"default.jpg"|truncatechars:20 }}</span>
+                                </div>
+                                  <label for="id_image" class="custom-file-input-label">
+                                    <i class="fas fa-upload me-2"></i>Choose New Picture
+                                </label>
+                                
+                                <div id="upload-feedback" class="mt-2"></div>
+                                
+                                <!-- Upload progress indicator -->
+                                <div class="upload-progress-container" id="upload-progress">
+                                    <div class="upload-progress-bar"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="image-input-container">
+                                {{ p_form.image }}
+                            </div>
+                            
+                            <div class="image-guidelines">
+                                <div class="guideline-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Square image recommended (1:1 ratio)</span>
+                                </div>
+                                <div class="guideline-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Maximum file size: 2MB</span>
+                                </div>
+                                <div class="guideline-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Supported formats: JPG, PNG, GIF</span>
+                                </div>
                             </div>
                         </div>
-                        {{ p_form.image|as_crispy_field }}                        <small class="form-text text-muted mb-3 d-block">
-                            <i class="fas fa-info-circle me-1"></i>For best results, upload a square image. Max 2MB.
-                        </small>
                     </div>
                 </div>
             </div>
@@ -301,3 +603,57 @@
 </div>
 
 {% endblock content %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview functionality
+        const imageInput = document.getElementById('id_image');
+        const currentImage = document.querySelector('.current-profile-image-display img');
+        
+        if (imageInput && currentImage) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    // Check file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('File is too large! Maximum size is 2MB.');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Check file type
+                    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Invalid file type! Please upload a JPG, PNG, GIF, or WebP image.');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Update preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        currentImage.src = e.target.result;
+                        currentImage.style.borderColor = '#28a745';
+                        
+                        // Add success indicator
+                        const successElement = document.createElement('div');
+                        successElement.className = 'upload-success-indicator';
+                        successElement.innerHTML = '<i class="fas fa-check"></i> New image selected';
+                        
+                        // Remove any existing indicator
+                        const existingIndicator = document.querySelector('.upload-success-indicator');
+                        if (existingIndicator) {
+                            existingIndicator.remove();
+                        }
+                        
+                        // Add the indicator after the image container
+                        const imageContainer = document.querySelector('.current-profile-image-display');
+                        imageContainer.appendChild(successElement);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
