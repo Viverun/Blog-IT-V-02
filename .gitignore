@@ -27,3 +27,6 @@ myenv/
 # Other
 *.DS_Store
 debug.log
+
+# Windows specific
+*:Zone.Identifier
