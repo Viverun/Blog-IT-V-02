@@ -3,9 +3,9 @@ services:
   - type: web
     name: blog-app
     env: python
-    region: oregon # Use the region closest to your users
-    plan: free # Use free tier    buildCommand: ./build.sh
-    startCommand: cd DJANGO_PROJECT && python -m gunicorn wsgi:application
+    region: oregon # Use the region closest to your users    plan: free # Use free tier
+    buildCommand: ./build.sh
+    startCommand: cd DJANGO_PROJECT && gunicorn wsgi:application
     autoDeploy: true
     healthCheckPath: /
     envVars:
