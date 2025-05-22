@@ -1,14 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
-import os
+import os # Ensure os is imported
+from django.conf import settings as django_settings # Add this import
+from django.core.files.storage import default_storage as current_default_storage # Add this import
+import importlib.util # For checking module availability
 
 # Check if Cloudinary is installed and configured
-try:
-    from cloudinary.models import CloudinaryField
-    CLOUDINARY_AVAILABLE = True
-except ImportError:
-    CLOUDINARY_AVAILABLE = False
+CLOUDINARY_AVAILABLE = False
+MediaCloudinaryStorage = None
+if importlib.util.find_spec("cloudinary") and importlib.util.find_spec("cloudinary_storage"):
+    try:
+        # We don't need CloudinaryField model import directly for storage backend check
+        # from cloudinary.models import CloudinaryField 
+        from cloudinary_storage.storage import MediaCloudinaryStorage
+        CLOUDINARY_AVAILABLE = True
+    except ImportError:
+        # This case should ideally not be hit if find_spec passed, but as a safeguard:
+        CLOUDINARY_AVAILABLE = False 
+        MediaCloudinaryStorage = None
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -24,44 +34,63 @@ class Profile(models.Model):
         return f"{self.user.username} Profile"
         
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        print(f"[PROFILE_SAVE_ENTRY] User: {self.user.username}, Current Image: {self.image.name if self.image else 'No Image'}")
+        print(f"[PROFILE_SAVE_ENTRY] DEBUG from settings: {django_settings.DEBUG}")
+        print(f"[PROFILE_SAVE_ENTRY] django_settings.STORAGES['default']: {django_settings.STORAGES.get('default', {}).get('BACKEND', 'Not Set')}")
+        print(f"[PROFILE_SAVE_ENTRY] Current default_storage IS: {current_default_storage}")
+        if self.image and hasattr(self.image, 'storage'):
+            print(f"[PROFILE_SAVE_ENTRY] self.image.storage IS: {self.image.storage}")
+
+        super().save(*args, **kwargs) # Call the "real" save() method.
         
         try:
-            # Check if we're using local storage (not Cloudinary)
-            # Cloudinary images don't have a local path, so this optimization only works for local files
-            if self.image and hasattr(self.image, 'path') and os.path.exists(self.image.path):
-                img = Image.open(self.image.path)
+            if self.image and self.image.name and self.image.name != 'default.jpg':
+                image_instance = self.image # Use the instance's image attribute
+                storage_being_used = image_instance.storage
+                print(f"[PROFILE_SAVE_POST_SUPER] Processing image: {image_instance.name}, Storage: {storage_being_used}")
+
+                try:
+                    url = image_instance.url
+                    print(f"[PROFILE_SAVE_POST_SUPER] Image URL via storage: {url}")
+                except Exception as e_url:
+                    print(f"[PROFILE_SAVE_POST_SUPER] Error getting image URL: {e_url}")
+
+                is_cloudinary = CLOUDINARY_AVAILABLE and MediaCloudinaryStorage and isinstance(storage_being_used, MediaCloudinaryStorage)
                 
-                # Check for image format
-                img_format = img.format
-                print(f"Image format: {img_format}, Mode: {img.mode}, Size: {img.size}")
-                
-                # Convert image format if necessary
-                if img_format not in ['JPEG', 'PNG', 'GIF', 'WEBP']:
-                    print(f"Converting image from {img_format} to JPEG")
-                    if img.mode != 'RGB':
-                        img = img.convert('RGB')
-                
-                # Resize if image is too large
-                if img.height > 300 or img.width > 300:
-                    output_size = (300, 300)
-                    img.thumbnail(output_size)
-                
-                # Optimize image quality - balance size vs. quality
-                img.save(self.image.path, quality=85, optimize=True)
-                
-                # Print file size after optimization
-                file_size = os.path.getsize(self.image.path) / 1024  # KB
-                print(f"Image saved. File size: {file_size:.2f} KB")
+                if not is_cloudinary and hasattr(image_instance, 'path') and image_instance.path and os.path.exists(image_instance.path):
+                    print(f"[PROFILE_SAVE_PIL] Processing image locally: {image_instance.path}")
+                    img = Image.open(image_instance.path)
+                    
+                    original_format = img.format
+                    original_mode = img.mode
+                    original_size = img.size
+                    print(f"Original image - Format: {original_format}, Mode: {original_mode}, Size: {original_size}")
+                    
+                    if img.height > 300 or img.width > 300:
+                        output_size = (300, 300)
+                        img.thumbnail(output_size)
+                        print(f"Image resized to fit within 300x300. New size: {img.size}")
+                    
+                    save_kwargs = {'quality': 85, 'optimize': True}
+                    if original_format:
+                        save_kwargs['format'] = original_format
+                    
+                    img.save(image_instance.path, **save_kwargs)
+                    
+                    file_size_kb = os.path.getsize(image_instance.path) / 1024
+                    print(f"Image saved after PIL. File size: {file_size_kb:.2f} KB. Path: {image_instance.path}")
+                elif is_cloudinary:
+                    print(f"[PROFILE_SAVE_PIL] Image is on Cloudinary. Name: {image_instance.name}. No local PIL processing applied here.")
+                else:
+                    print(f"[PROFILE_SAVE_PIL] Image storage is not local FS or not Cloudinary, or path not available. Name: {image_instance.name}, Storage: {storage_being_used}")
+
+            elif self.image and self.image.name == 'default.jpg':
+                print("[PROFILE_SAVE_PIL] Image is default.jpg, no PIL processing needed.")
             else:
-                # For cloud storage (Cloudinary), resizing happens automatically via Cloudinary API 
-                # Just log some information
-                print(f"Image uploaded using cloud storage: {self.image.name}")
-                print(f"Storage backend: {self.image.storage}")
+                print("[PROFILE_SAVE_PIL] No image attached or image name is empty, no PIL processing.")
+        except FileNotFoundError as fnf_error:
+            print(f"Error during PIL image processing (FileNotFound): {str(fnf_error)}. Image path: {image_instance.path if 'image_instance' in locals() and hasattr(image_instance, 'path') else 'N/A'}")
         except Exception as e:
-            # Log the error but don't crash            
-            print(f"Error processing profile image: {str(e)}")
-            # If we're in development, we might want to re-raise this
-            if os.environ.get('DJANGO_DEBUG', 'True') == 'True':
-                print("Debug mode is on, but not re-raising the exception to avoid breaking user experience")
-                # We're not re-raising as it would break the user experience
+            print(f"Error during PIL image processing in Profile.save: {str(e)}")
+            if django_settings.DEBUG:
+                 print("Debug mode is on, but not re-raising the exception to avoid breaking user experience")
