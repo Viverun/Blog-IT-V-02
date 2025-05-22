@@ -2,6 +2,8 @@ services:
   # A web service for the Django application  - type: web
     name: blog-app
     env: python
+    rootDir: DJANGO_PROJECT
+
     region: oregon # Use the region closest to your users
     plan: free # Use free tier
     buildCommand: ./build.sh
