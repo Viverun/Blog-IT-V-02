@@ -1,12 +1,11 @@
 services:
-  # A web service for the Django application
-  - type: web
+  # A web service for the Django application  - type: web
     name: blog-app
     env: python
     region: oregon # Use the region closest to your users
     plan: free # Use free tier
     buildCommand: ./build.sh
-    startCommand: gunicorn DJANGO_PROJECT.wsgi:application
+    startCommand: gunicorn DJANGO_PROJECT.wsgi:application --chdir DJANGO_PROJECT
     autoDeploy: true
     healthCheckPath: /
     envVars:
