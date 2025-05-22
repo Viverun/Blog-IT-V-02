@@ -6,6 +6,6 @@ cloudinary
 django-cloudinary-storage
 Pillow
 python-dotenv
-crispy-forms
+django-crispy-forms
 crispy-bootstrap5
 django-summernote
