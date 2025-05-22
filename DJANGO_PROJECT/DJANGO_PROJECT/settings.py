@@ -13,6 +13,8 @@ import os
 import os.path
 from typing import Any  # Add Any for type hinting
 import dj_database_url  # Ensure dj_database_url is imported
+import cloudinary # Ensure cloudinary is imported
+import cloudinary.utils # For parsing CLOUDINARY_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # Define the base directory of the project
@@ -180,17 +182,26 @@ STORAGES = {
 
 # For production media file storage
 if not DEBUG:
-    # Check for Cloudinary configuration
-    if 'CLOUDINARY_URL' in os.environ:
-        # Cloudinary settings from environment URL
-        CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+    cloudinary_url_val = os.environ.get('CLOUDINARY_URL')
+    if cloudinary_url_val: # Check if the URL is actually set
+        print(f"Found CLOUDINARY_URL: {cloudinary_url_val[:20]}...") # Print partial URL for confirmation
         
-        # Use Cloudinary for media files in production (Django 4.0+ format)
-        STORAGES["default"] = {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        }
-        
-        print("Cloudinary configured for media storage")
+        # Explicitly configure cloudinary with the URL
+        # This should make the credentials available to cloudinary_storage
+        try:
+            cloudinary.config(cloudinary_url=cloudinary_url_val, secure=True)
+            print("Cloudinary explicitly configured using cloudinary.config() from CLOUDINARY_URL.")
+            
+            # Now, set the storage backend
+            STORAGES["default"] = {
+                "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+            }
+            print("Cloudinary configured for media storage in STORAGES setting.")
+
+        except Exception as e:
+            print(f"CRITICAL: Error configuring Cloudinary with CLOUDINARY_URL: {e}")
+            # Consider raising an ImproperlyConfigured error or similar if parsing fails.
+
     elif 'AWS_ACCESS_KEY_ID' in os.environ:
         # AWS S3 configuration
         AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
