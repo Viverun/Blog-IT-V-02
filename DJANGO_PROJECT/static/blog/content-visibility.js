@@ -1,8 +1,8 @@
-// Improved content visibility management - No fade, only slide animation
+// Fixed content visibility management - No opacity fade, content always visible
 document.addEventListener('DOMContentLoaded', function() {
   const sections = document.querySelectorAll('.content-section');
 
-  // Immediately make all content visible and set its final resting state.
+  // Immediately make all content fully visible and keep it that way
   sections.forEach(section => {
     section.style.opacity = '1';
     section.style.visibility = 'visible';
@@ -17,40 +17,37 @@ document.addEventListener('DOMContentLoaded', function() {
   // Skip animations for accessibility, slow connections, or if IntersectionObserver is not supported.
   if (prefersReducedMotion || isSlowConnection || !('IntersectionObserver' in window)) {
     if (!('IntersectionObserver' in window)) {
-      console.log('IntersectionObserver not supported, skipping animations.');
+      console.log('IntersectionObserver not supported, content remains visible.');
     } else {
-      console.log('Skipping animations due to preferences or connection.');
+      console.log('Animations disabled for user preferences, content remains visible.');
     }
-    return; // Content remains as set above (fully visible, no transform animation).
+    return; // Content remains fully visible with no animations
   }
   
-  // Define animation style - opacity part will be unused if opacity is always 1.
-  const animationStyle = 'opacity 0.5s ease, transform 0.5s ease'; 
+  // Animation only affects transform (slide), never opacity
+  const animationStyle = 'transform 0.5s ease'; 
   
-  // Use a timeout to allow initial rendering and then apply starting animation state.
+  // Apply slide animation after initial render
   setTimeout(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const target = entry.target;
         if (entry.isIntersecting) {
-          // Animate to final state (transform back to 0)
-          // Opacity is already 1 and stays 1.
+          // Slide animation to final position - opacity stays 1
           target.style.transform = 'translateY(0)';
-          // target.style.transition is already set.
           observer.unobserve(target);
         }
       });
     }, { 
-      threshold: 0.1, // When 10% of the element is visible
+      threshold: 0.1,
       rootMargin: "0px" 
     });
 
     sections.forEach(section => {
-      // Prepare for slide animation. Content is already opacity:1, visibility:visible.
-      // Set the starting position for the transform.
-      section.style.transform = 'translateY(20px)'; // Start slightly down
-      section.style.transition = animationStyle; // Apply transition styles
+      // Set starting slide position - opacity remains 1 always
+      section.style.transform = 'translateY(20px)';
+      section.style.transition = animationStyle;
       observer.observe(section);
     });
-  }, 100); // 100ms delay
+  }, 100);
 });
