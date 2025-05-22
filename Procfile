@@ -1,1 +1,1 @@
-web: gunicorn DJANGO_PROJECT.DJANGO_PROJECT.wsgi:application
+web: gunicorn --chdir DJANGO_PROJECT wsgi:application
