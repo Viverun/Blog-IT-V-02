@@ -10,3 +10,4 @@ django-crispy-forms
 crispy-bootstrap5
 django-summernote
 psycopg2
+pyjokes
