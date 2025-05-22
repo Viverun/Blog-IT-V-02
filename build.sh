@@ -83,4 +83,25 @@ python $MANAGE_PATH collectstatic --no-input
 echo "Attempting to apply database migrations with: python $MANAGE_PATH migrate"
 python $MANAGE_PATH migrate
 
+# Update the default Site domain to match our settings
+echo "Updating the default Site domain from settings.SITE_URL"
+python $MANAGE_PATH shell -c "
+from django.contrib.sites.models import Site
+from django.conf import settings
+from urllib.parse import urlparse
+if hasattr(settings, 'SITE_URL'):
+    url_parts = urlparse(settings.SITE_URL)
+    domain = url_parts.netloc
+    if domain:
+        site = Site.objects.get(id=settings.SITE_ID)
+        site.domain = domain
+        site.name = 'Blog-It'
+        site.save()
+        print(f'SUCCESS: Site domain updated to {domain}')
+    else:
+        print('ERROR: No valid domain in settings.SITE_URL')
+else:
+    print('ERROR: settings.SITE_URL not found')
+"
+
 echo "Build script completed."

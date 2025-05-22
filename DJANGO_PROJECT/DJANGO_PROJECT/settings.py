@@ -171,24 +171,21 @@ if not DEBUG:
         # to configure the cloudinary SDK.
         # If individual CLOUDINARY_CLOUD_NAME, API_KEY, API_SECRET are set, it uses those.
         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-        print("INFO: Cloudinary configured as the default media storage.")
-
-        # Example check that Cloudinary SDK *could* be configured (actual config happens inside storage backend)
+        print("INFO: Cloudinary configured as the default media storage.")        # Example check that Cloudinary SDK *could* be configured (actual config happens inside storage backend)
         try:
             # Note: django-cloudinary-storage does the actual config when needed.
             # This is just a proactive check that creds *might* be available to the core SDK.
-            if cloudinary_url_env:
-                 cloudinary_config_check = cloudinary.CloudinaryConfig(cloudinary_url=cloudinary_url_env)
+            if cloudinary_url_env:            # Use cloudinary.config() to configure the SDK
+                cloudinary.config(url=cloudinary_url_env)
+                print("INFO: Cloudinary SDK configured from CLOUDINARY_URL environment variable.")
             else:
-                 cloudinary_config_check = cloudinary.CloudinaryConfig(
+                # Simple config check without using CloudinaryConfig
+                cloudinary.config(
                     cloud_name=cloudinary_name_env,
                     api_key=os.environ.get("CLOUDINARY_API_KEY"),
                     api_secret=os.environ.get("CLOUDINARY_API_SECRET")
                 )
-            if cloudinary_config_check.cloud_name:
-                print(f"INFO: Cloudinary SDK check indicates cloud_name '{cloudinary_config_check.cloud_name}' could be resolved.")
-            else:
-                print("WARNING: Cloudinary SDK check could not resolve cloud_name from environment variables. Uploads may fail.")
+                print(f"INFO: Cloudinary SDK check indicates configuration is available.")
         except Exception as e:
             print(f"WARNING: Error during preliminary Cloudinary config check: {e}. Uploads may fail.")
 
@@ -275,11 +272,23 @@ SITE_ID = 1 # Required by django.contrib.sites
 # --- Site URL (for full URL generation in emails, sitemaps, etc.) ---
 if DEBUG:
     SITE_URL = 'http://127.0.0.1:8000'
-    # DOMAIN_NAME = '127.0.0.1:8000' # If your custom middleware needs it
 else:
     # RENDER_EXTERNAL_URL is preferred as it includes https and the correct domain
-    SITE_URL = os.environ.get('RENDER_EXTERNAL_URL', f"https://{ALLOWED_HOSTS[0] if ALLOWED_HOSTS else 'your-app.onrender.com'}")
-    # DOMAIN_NAME = ALLOWED_HOSTS[0] if ALLOWED_HOSTS else 'your-app.onrender.com'
+    # If we have a DJANGO_DOMAIN environment variable, use that as the primary fallback
+    SITE_URL = os.environ.get('RENDER_EXTERNAL_URL') or os.environ.get('DJANGO_DOMAIN', '')
+    
+    # If no explicit domain is set in environment variables, try to use ALLOWED_HOSTS
+    if not SITE_URL and ALLOWED_HOSTS:
+        # Filter out localhost/127.0.0.1 and pick the first valid hostname
+        production_hosts = [host for host in ALLOWED_HOSTS 
+                          if host not in ['localhost', '127.0.0.1'] and '.' in host]
+        if production_hosts:
+            SITE_URL = f"https://{production_hosts[0]}"
+    
+    # Final fallback if nothing else is available
+    if not SITE_URL:
+        SITE_URL = 'https://your-app.onrender.com'
+        print("WARNING: Using default fallback domain. Set DJANGO_DOMAIN in environment variables.")
 
 print(f"INFO: SITE_URL configured as: {SITE_URL}")
 
