@@ -1,0 +1,1 @@
+#!/usr/bin/env bash# Build script for Renderset -o errexit  # Exit on error# Initial setuppython -m pip install --upgrade pip# Install dependenciespip install -r requirements.txt# Collect static filespython manage.py collectstatic --no-input# Apply database migrationspython manage.py migrate
