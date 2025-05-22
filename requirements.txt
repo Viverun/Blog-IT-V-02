@@ -105,15 +105,12 @@ pygame==2.6.1
 Pygments==2.19.1
 pyjokes==0.8.3
 pynvim==0.5.2
-pypiwin32==223
 pystoi==0.4.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
-pytorch-lightning==2.5.1
 pytorch-ranger==0.1.1
 pyttsx3==2.98
 pytz==2024.2
-pywin32==308
 PyYAML==6.0.2
 requests==2.32.3
 requests-toolbelt==1.0.0
