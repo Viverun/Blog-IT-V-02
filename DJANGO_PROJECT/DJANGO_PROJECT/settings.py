@@ -14,7 +14,6 @@ import os.path
 from typing import Any  # Add Any for type hinting
 import dj_database_url  # Ensure dj_database_url is imported
 import cloudinary # Ensure cloudinary is imported
-import cloudinary.utils # For parsing CLOUDINARY_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # Define the base directory of the project
@@ -186,26 +185,39 @@ STORAGES = {
 
 # For production media file storage
 if not DEBUG:
-    cloudinary_url_env = os.environ.get('CLOUDINARY_URL')
-    if cloudinary_url_env:
-        print(f"Found CLOUDINARY_URL, attempting to configure Cloudinary globally: {cloudinary_url_env[:20]}...")
-        try:
-            # cloudinary.config() will automatically use CLOUDINARY_URL if set in the environment.
-            # It also accepts individual parameters if CLOUDINARY_URL is not set but others are.
-            cloudinary.config(secure=True) 
-            
-            # Verify that the configuration was successful by checking if cloud_name is now set
-            if cloudinary.config().cloud_name:
-                print(f"Cloudinary configured successfully. Cloud Name: {cloudinary.config().cloud_name}")
-                STORAGES["default"] = {
-                    "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-                }
-                print("STORAGES[\"default\"] set to MediaCloudinaryStorage.")
-            else:
-                print("CRITICAL: cloudinary.config() was called, but cloud_name is still not set. CLOUDINARY_URL might be malformed or not picked up.")
-        except Exception as e:
-            print(f"CRITICAL: Error during Cloudinary configuration or verification: {e}")
-    
+    # Check for Cloudinary configuration via environment variables
+    cloudinary_url = os.environ.get("CLOUDINARY_URL")
+    if cloudinary_url:
+        # Parse the URL manually to populate CLOUDINARY_STORAGE
+        import re
+        m = re.match(r"cloudinary://(\w+):(\w+)@([\w\-]+)", cloudinary_url)
+        if m:
+            # This approach works more reliably than other methods
+            CLOUDINARY_STORAGE = {
+                "CLOUD_NAME": m.group(3),
+                "API_KEY": m.group(1),
+                "API_SECRET": m.group(2),
+            }
+            STORAGES["default"] = {
+                "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+            }
+            print(f"Cloudinary configured with CLOUD_NAME: {CLOUDINARY_STORAGE['CLOUD_NAME']}")
+        else:
+            print("CLOUDINARY_URL format invalid! Please check your environment variable.")
+    # Alternate method using separate Cloudinary environment variables
+    elif (os.environ.get('CLOUDINARY_CLOUD_NAME') and 
+          os.environ.get('CLOUDINARY_API_KEY') and 
+          os.environ.get('CLOUDINARY_API_SECRET')):
+        CLOUDINARY_STORAGE = {
+            "CLOUD_NAME": os.environ.get('CLOUDINARY_CLOUD_NAME'),
+            "API_KEY": os.environ.get('CLOUDINARY_API_KEY'),
+            "API_SECRET": os.environ.get('CLOUDINARY_API_SECRET'),
+        }
+        STORAGES["default"] = {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        }
+        print("Cloudinary configured using individual environment variables.")
+    # AWS S3 fallback if Cloudinary isn't configured
     elif 'AWS_ACCESS_KEY_ID' in os.environ:
         # AWS S3 configuration
         AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -219,26 +231,8 @@ if not DEBUG:
         STORAGES["default"] = {
             "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         }
-
-if not DEBUG:
-    cloudinary_url = os.environ.get("CLOUDINARY_URL")
-    if cloudinary_url:
-        # Parse the URL manually
-        import re
-        m = re.match(r"cloudinary://(\w+):(\w+)@([\w\-]+)", cloudinary_url)
-        if m:
-            CLOUDINARY_STORAGE = {
-                "CLOUD_NAME": m.group(3),
-                "API_KEY": m.group(1),
-                "API_SECRET": m.group(2),
-            }
-            STORAGES["default"] = {
-                "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-            }
-        else:
-            print("CLOUDINARY_URL format invalid!")
     else:
-        print("CLOUDINARY_URL not set in environment!")
+        print("WARNING: No cloud storage configured (CLOUDINARY_URL or AWS not set). Media files won't work in production.")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
