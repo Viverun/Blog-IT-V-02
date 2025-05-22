@@ -1,137 +1,145 @@
 # Blog-It - Django Blog Application
 
-A modern blog application built with Django where users can create, read, update, and delete blog posts. Features include user authentication, comments, and a responsive design.
+A modern, feature-rich blog application built with Django, allowing users to create, share, and engage with content seamlessly. It includes user authentication, post management, a commenting system, tagging, search, and is designed for easy deployment on Render.
 
 ## Features
 
-- User authentication and profile management
-- Create, read, update, and delete blog posts
-- Comment system for posts
-- Responsive design using Bootstrap
-- Rich text editing with Summernote
-- Tag system for categorizing posts
+*   **User Authentication**: Secure user registration, login, logout, and password reset functionality.
+*   **User Profiles**: Customizable user profiles with profile pictures, bios, and social media links (`Twitter`, `LinkedIn`, `GitHub`).
+*   **Post Management (CRUD)**: Users can create, read, update, and delete their blog posts.
+*   **Rich Text Editor**: WYSIWYG editor (Summernote) for creating and editing blog posts with formatting options.
+*   **Commenting System**: Users can comment on posts, and reply to existing comments.
+*   **Tagging**: Posts can be categorized using tags, with a dedicated page to view all posts for a specific tag.
+*   **Popular Tags**: Displays a list of popular tags.
+*   **Search Functionality**: Users can search for blog posts.
+*   **Pagination**: Efficiently handles lists of posts.
+*   **Responsive Design**: Built with Bootstrap 5 for a seamless experience across devices.
+*   **Static File Serving**: Optimized for production using WhiteNoise.
+*   **Admin Interface**: Django admin panel for site administration.
+*   **Customizable Site URL/Domain**: Dynamically sets site URL based on environment (development/production).
 
-## Local Development
+## Tech Stack
 
-### Prerequisites
+*   **Backend**: Python, Django
+*   **Frontend**: HTML, CSS, JavaScript, Bootstrap 5
+*   **Database**: PostgreSQL (Production - Render), SQLite (Local Development)
+*   **WSGI Server**: Gunicorn (Production)
+*   **Static Files**: WhiteNoise (Production)
+*   **Editor**: Django Summernote
+*   **Forms**: Django Crispy Forms with Bootstrap 5 pack
 
-- Python 3.13+
-- pip or uv (package installer)
-
-### Setup
-
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd DJANGO_PROJECT
-   ```
-
-2. Create a virtual environment:
-   ```
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1  # On Windows
-   ```
-
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-4. Set up the database:
-   ```
-   python manage.py migrate
-   ```
-
-5. Create a superuser:
-   ```
-   python manage.py createsuperuser
-   ```
-
-6. Run the development server:
-   ```
-   python manage.py runserver
-   ```
-
-7. Visit http://127.0.0.1:8000/ in your browser.
-
-## Deployment to Render
-
-This project is configured for easy deployment on Render's free tier.
-
-### Automatic Deployment
-
-1. Create a [Render account](https://render.com/)
-2. Push your code to a GitHub repository
-3. In the Render dashboard, click "New" and select "Blueprint"
-4. Connect your GitHub repository
-5. Render will detect the `render.yaml` configuration automatically
-6. Click "Apply" to create and deploy all the necessary services
-
-### Manual Deployment
-
-If you prefer to set up the services manually:
-
-1. In Render, create a new PostgreSQL database (Free tier)
-2. Create a new Web Service:
-   - Set the build command to: `./build.sh`
-   - Set the start command to: `gunicorn DJANGO_PROJECT.wsgi:application`
-   - Add the following environment variables:
-     - `DATABASE_URL`: (Use the Internal Database URL from your Render PostgreSQL instance)
-     - `DJANGO_SECRET_KEY`: (Generate a secure key)
-     - `DJANGO_DEBUG`: False
-     - `DJANGO_ALLOWED_HOST`: your-app.onrender.com
-
-### First-time Setup After Deployment
-
-After your app is deployed:
-
-1. Open a shell in the Render dashboard 
-2. Run these commands to set up your database:
-   ```
-   python manage.py migrate
-   python manage.py createsuperuser
-   ```
-
-### Testing Deployment Locally
-
-To test if your app is ready for deployment:
+## Project Structure
 
 ```
-pip install gunicorn dj-database-url whitenoise psycopg2-binary
-python manage.py collectstatic
-gunicorn DJANGO_PROJECT.wsgi:application
+DJANGO_PROJECT/
+├── blog/                 # Core blogging application (models, views, templates for posts, comments, tags)
+├── users/                # User management application (models, views, templates for profiles, auth)
+├── DJANGO_PROJECT/       # Main project configuration (settings, main URLs, WSGI)
+├── templates/            # Global templates (e.g., base layout if not app-specific)
+├── static/               # Global static files (CSS, JS, images)
+├── media/                # User-uploaded files (e.g., profile pictures)
+├── manage.py             # Django's command-line utility
+├── requirements.txt      # Python package dependencies
+├── runtime.txt           # Python version for Render
+├── Procfile              # Defines process types for Heroku/Render (Gunicorn)
+├── build.sh              # Build script for Render (installs dependencies, collects static, migrates DB)
+├── render.yaml           # Infrastructure-as-Code for Render deployment
+└── README.md             # This file
 ```
 
-## Environment Variables
+## Prerequisites for Local Development
 
-For production deployment, configure the following environment variables:
+*   Python (version as specified in `runtime.txt`, e.g., 3.13.1)
+*   `pip` (Python package installer)
+*   Git for version control
 
-- `DJANGO_SECRET_KEY`: A secure secret key
-- `DJANGO_DEBUG`: Set to 'False'
-- `DJANGO_ALLOWED_HOST`: Your Render domain (e.g., 'blog-app.onrender.com')
-- `DATABASE_URL`: PostgreSQL database URL (automatically set by Render)
+## Local Development Setup
 
-## License
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/Viverun/BLOG-V01.git
+    cd BLOG-V01 # Or your project's root directory name
+    ```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+2.  **Create and activate a virtual environment**:
+    *   On Windows (PowerShell):
+        ```powershell
+        python -m venv .venv
+        .\.venv\Scripts\Activate.ps1
+        ```
+    *   On macOS/Linux:
+        ```bash
+        python3 -m venv .venv
+        source .venv/bin/activate
+        ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Set up Environment Variables (Optional for basic local run, required for email features)**:
+    Create a `.env` file in the root project directory (alongside `manage.py`) and add the following (example):
+    ```env
+    DJANGO_SECRET_KEY='your_very_secret_django_key_here'
+    DJANGO_DEBUG=True
+    EMAIL_HOST_USER='your_gmail_username@gmail.com'
+    EMAIL_HOST_PASSWORD='your_gmail_app_password'
+    # DATABASE_URL='sqlite:///db.sqlite3' # Default, not strictly needed in .env for local SQLite
+    ```
+    *   `DJANGO_SECRET_KEY`: A strong, unique key. The `settings.py` has a default insecure key for development if this is not set.
+    *   `EMAIL_HOST_USER` / `EMAIL_HOST_PASSWORD`: For password reset emails via Gmail. Generate an "App Password" for `EMAIL_HOST_PASSWORD` if using 2FA with Gmail.
+
+5.  **Apply database migrations**:
+    ```bash
+    python manage.py migrate
+    ```
+
+6.  **Create a superuser** (for admin panel access):
+    ```bash
+    python manage.py createsuperuser
+    ```
+    Follow the prompts to set a username, email, and password.
+
+7.  **Run the development server**:
+    ```bash
+    python manage.py runserver
+    ```
+
+8.  Open your browser and navigate to `http://127.0.0.1:8000/`.
+
+## Environment Variables (Production)
+
+The following environment variables need to be configured in your production environment (e.g., on Render):
+
+*   `DJANGO_SECRET_KEY`: **Required**. A strong, unique secret key.
+*   `DJANGO_DEBUG`: **Required**. Set to `False`.
+*   `DJANGO_ALLOWED_HOST`: **Required**. Your production domain(s) (e.g., `your-app-name.onrender.com,www.yourdomain.com`).
+*   `DATABASE_URL`: **Required**. Provided by your Render PostgreSQL service (automatically injected if using `render.yaml`).
+*   `PYTHON_VERSION`: Specified in `runtime.txt` and `render.yaml`.
+*   `EMAIL_HOST_USER`: (Optional) Your Gmail address for sending emails.
+*   `EMAIL_HOST_PASSWORD`: (Optional) Your Gmail app password.
+*   `WEB_CONCURRENCY`: (Optional) Number of Gunicorn workers. Render sets a default.
+
+## Running Tests
+
+To run the automated tests for the application:
+```bash
+python manage.py test
+```
+This will discover and run tests in the `blog` and `users` applications.
 
 ## Deploying to Render (Free Tier)
 
-This project is configured for deployment on Render's free tier.
+This project is configured for deployment on Render's free tier using the provided `render.yaml` (Blueprint) and `build.sh` script.
 
-### Prerequisites:
+### Prerequisites for Render Deployment:
 1.  **Render Account**: Sign up at [render.com](https://render.com/).
-2.  **GitHub Repository**: Push your project to a GitHub repository. Render will connect to this repository.
-3.  **Environment Variables**: Ensure you have the necessary environment variables ready. Some will be set directly in Render, and `DATABASE_URL` will be provided by Render's PostgreSQL service.
-    *   `DJANGO_SECRET_KEY`: A strong, unique secret key. You can generate one using Django's `get_random_secret_key()` or an online generator.
-    *   `DJANGO_DEBUG`: Set to `False` for production.
-    *   `DJANGO_ALLOWED_HOST`: Your Render app's domain (e.g., `your-app-name.onrender.com`) and any custom domains.
-    *   `PYTHON_VERSION`: Specified in `runtime.txt` (e.g., `python-3.13.1`).
-    *   `WEB_CONCURRENCY`: (Optional) Number of Gunicorn workers. Render sets a default based on plan.
+2.  **GitHub Repository**: Your project code pushed to a GitHub repository. Render will connect to this.
 
 ### Deployment Options:
 
-**Option 1: Using Render Blueprint (render.yaml - Recommended)**
+**Option 1: Using Render Blueprint (`render.yaml` - Recommended)**
 
 1.  **Commit `render.yaml`**: Ensure the `render.yaml` file in your repository is up-to-date and correctly configured. This file defines your services (web server and database) and environment settings.
 2.  **Create New Blueprint Instance on Render**:
@@ -139,10 +147,10 @@ This project is configured for deployment on Render's free tier.
     *   Click "New" -> "Blueprint".
     *   Connect your GitHub account and select the repository for your Django project.
     *   Render will automatically detect and parse the `render.yaml` file.
-    *   Review the services and environment variables. You will need to:
-        *   Manually add `DJANGO_SECRET_KEY` as a secret environment variable for the web service.
+    *   Review the services and environment variables.
+        *   The `DJANGO_SECRET_KEY` will be generated automatically by Render as specified in `render.yaml` (`generateValue: true`). You can also set it manually if preferred.
         *   The `DATABASE_URL` will be automatically provided by the Render PostgreSQL service and injected into your web service's environment.
-    *   Click "Create Blueprint Instance".
+    *   Click "Create Blueprint Instance" (or "Apply" if updating).
 3.  **Deployment**: Render will build and deploy your application based on `render.yaml` and `build.sh`.
 4.  **Set Custom Domain (Optional)**: Once deployed, you can add a custom domain in your Render service settings.
 
@@ -164,9 +172,9 @@ If you prefer not to use a Blueprint or need more granular control during setup:
         *   **Name**: Choose a name for your web service (e.g., `my-django-app`).
         *   **Region**: Choose a region.
         *   **Branch**: Select the branch to deploy (e.g., `main` or `master`).
-        *   **Root Directory**: Leave blank if your `manage.py` is at the root, otherwise specify the path.
+        *   **Root Directory**: Leave blank if your `manage.py` is at the root.
         *   **Runtime**: Select `Python`.
-        *   **Build Command**: `./build.sh` (or `sh build.sh` if you encounter issues, though `./build.sh` should work given execute permissions are set by git).
+        *   **Build Command**: `./build.sh`
         *   **Start Command**: `gunicorn DJANGO_PROJECT.wsgi:application` (as defined in your `Procfile`).
         *   **Instance Type**: Choose the free tier.
     *   **Environment Variables**:
@@ -175,15 +183,15 @@ If you prefer not to use a Blueprint or need more granular control during setup:
         *   Add `PYTHON_VERSION` (e.g., `3.13.1` - matching your `runtime.txt`).
         *   Add `DJANGO_SECRET_KEY` (generate a strong unique key).
         *   Add `DJANGO_DEBUG` and set it to `False`.
-        *   Add `DJANGO_ALLOWED_HOST` (e.g., `your-app-name.onrender.com`). You can add more later, like your custom domain.
+        *   Add `DJANGO_ALLOWED_HOST` (e.g., `your-app-name.onrender.com`).
         *   (Optional) `WEB_CONCURRENCY`: Render's default is usually fine for the free tier.
     *   Click "Create Web Service".
 
 3.  **Deployment**: Render will pull your code, run the build command, and then the start command.
 
-### First-Time Setup Commands (After Initial Deployment)
+### First-Time Setup Commands (After Initial Deployment on Render)
 
-Render's `build.sh` handles migrations (`python manage.py migrate`). However, you might need to create a superuser manually for the first time if not scripted:
+Render's `build.sh` handles migrations (`python manage.py migrate`). However, you will likely need to create a superuser manually for the first time if not scripted:
 
 1.  **Open Render Shell**: Go to your Web Service on Render and open the "Shell" tab.
 2.  **Create Superuser**: Run the following command:
@@ -192,32 +200,30 @@ Render's `build.sh` handles migrations (`python manage.py migrate`). However, yo
     ```
     Follow the prompts to create your admin user.
 
-### Local Testing of Production Setup (Simulating Render)
+### Local Testing of Production-like Setup (Simulating Render)
 
-Before pushing, or to debug, you can simulate the production environment locally using the `deploy_render.ps1` script or by manually setting environment variables and running the build/start commands.
+Before pushing, or to debug, you can simulate parts of the production environment locally.
 
-1.  **Ensure `deploy_render.ps1` is up-to-date.** This script can help:
-    *   Check for required files (`requirements.txt`, `runtime.txt`, `Procfile`, `build.sh`).
-    *   Install deployment packages (`gunicorn`, `psycopg2-binary`, `dj-database-url`, `whitenoise`) if not already in your local environment (useful for testing `build.sh` steps).
-    *   Test static file collection: `python manage.py collectstatic --noinput`
-    *   Test migrations (if you have a local PostgreSQL instance configured via `DATABASE_URL`): `python manage.py migrate`
-    *   Run the Gunicorn server: `gunicorn DJANGO_PROJECT.wsgi:application`
+1.  **Ensure `deploy_render.ps1` (if used) or manual steps are clear.**
+    The `deploy_render.ps1` script can help automate checks and local testing steps.
 
-2.  **To fully simulate, set environment variables locally:**
-    *   `DJANGO_SECRET_KEY`
+2.  **To fully simulate, set environment variables locally (e.g., in your shell or a `.env` file loaded by a tool like `python-dotenv` if you integrate it):**
+    *   `DJANGO_SECRET_KEY='a_strong_production_key'`
     *   `DJANGO_DEBUG=False`
-    *   `DATABASE_URL` (pointing to a local PostgreSQL instance if you want to test database interaction)
-    *   `DJANGO_ALLOWED_HOST` (e.g., `localhost,127.0.0.1`)
+    *   `DATABASE_URL='your_local_postgresql_connection_string'` (if testing with PostgreSQL locally)
+    *   `DJANGO_ALLOWED_HOST='localhost,127.0.0.1'`
 
-    Then run:
-    ```powershell
-    ./build.sh 
-    # If on Windows and build.sh gives trouble, execute commands manually or via WSL:
+    Then run the build and start commands (ensure `psycopg2-binary` is in `requirements.txt` for PostgreSQL):
+    ```bash
+    # On Linux/macOS or Git Bash/WSL on Windows
+    ./build.sh
+    gunicorn DJANGO_PROJECT.wsgi:application
+
+    # Or, manually execute build steps if ./build.sh is problematic on native Windows:
     # pip install -r requirements.txt
     # python manage.py collectstatic --noinput --clear
     # python manage.py migrate
-    
-    gunicorn DJANGO_PROJECT.wsgi:application
+    # gunicorn DJANGO_PROJECT.wsgi:application
     ```
 
 ### Important Notes for Render:
@@ -226,7 +232,9 @@ Before pushing, or to debug, you can simulate the production environment locally
 *   **Database Migrations**: `build.sh` runs `migrate`.
 *   **Logging**: Check your application logs in the Render dashboard for any deployment or runtime errors.
 *   **`runtime.txt`**: Specifies the Python version for Render to use.
-*   **`Procfile`**: While Render can use the start command directly, a `Procfile` is good practice and is referenced by some tooling. Render will use the "Start Command" field in the dashboard, which should match the `Procfile`'s web process.
-*   **`build.sh`**: This script is crucial. Ensure it's executable (Git should handle this if you added it correctly: `git add --chmod=+x build.sh`). It prepares your application by installing dependencies, collecting static files, and running database migrations.
+*   **`Procfile`**: Defines the `web` process type. Render uses the "Start Command" from the dashboard, which should match the `Procfile`.
+*   **`build.sh`**: Crucial script for preparing the application. Ensure it's executable (Git handles this: `git add --chmod=+x build.sh`).
 
-## Local Development
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details (if one exists, otherwise, you may consider adding one).
