@@ -1,1 +1,1 @@
-web: cd DJANGO_PROJECT && python -m gunicorn wsgi:application
+web: cd DJANGO_PROJECT && gunicorn wsgi:application
