@@ -1,1 +1,1 @@
-web: gunicorn --chdir DJANGO_PROJECT wsgi:application
+web: cd DJANGO_PROJECT && python -m gunicorn wsgi:application
