@@ -14,7 +14,7 @@ import os.path
 from typing import Any  # Add Any for type hinting
 import dj_database_url  # Ensure dj_database_url is imported
 import cloudinary # Ensure cloudinary is imported
-# import cloudinary.utils # For parsing CLOUDINARY_URL # Not strictly needed if cloudinary.config handles it
+import cloudinary.utils # For parsing CLOUDINARY_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # Define the base directory of the project
@@ -169,19 +169,9 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# Attempt to configure Cloudinary from CLOUDINARY_URL if present
-# This should be done early so that django-cloudinary-storage can pick it up.
-cloudinary_url_env = os.environ.get('CLOUDINARY_URL')
-if not DEBUG and cloudinary_url_env:
-    print(f"Found CLOUDINARY_URL, attempting to configure Cloudinary globally: {cloudinary_url_env[:20]}...")
-    try:
-        # cloudinary.config() will automatically use CLOUDINARY_URL if set in the environment.
-        # Calling it here ensures it's processed before django-cloudinary-storage needs it.
-        # We also set secure=True as a best practice.
-        cloudinary.config(secure=True)
-        print("Cloudinary configured globally using cloudinary.config() (should pick up CLOUDINARY_URL).")
-    except Exception as e:
-        print(f"CRITICAL: Error during global Cloudinary configuration: {e}")
+# Initialize CLOUDINARY_STORAGE as an empty dict at the module level
+# This ensures it exists for django-cloudinary-storage to find.
+CLOUDINARY_STORAGE = {}
 
 # Storage configuration for Django 4.0+
 # Default storage configuration for development
@@ -196,15 +186,26 @@ STORAGES = {
 
 # For production media file storage
 if not DEBUG:
-    # Check if Cloudinary seems configured (either by CLOUDINARY_URL being set or individual vars)
-    # The previous cloudinary.config() call should have handled CLOUDINARY_URL.
-    # django-cloudinary-storage will check for settings.CLOUDINARY_STORAGE or the global config.
-    if cloudinary_url_env or \
-       (os.environ.get('CLOUDINARY_CLOUD_NAME') and os.environ.get('CLOUDINARY_API_KEY') and os.environ.get('CLOUDINARY_API_SECRET')):
-        STORAGES["default"] = {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        }
-        print("STORAGES[\"default\"] set to MediaCloudinaryStorage.")
+    cloudinary_url_env = os.environ.get('CLOUDINARY_URL')
+    if cloudinary_url_env:
+        print(f"Found CLOUDINARY_URL, attempting to configure Cloudinary globally: {cloudinary_url_env[:20]}...")
+        try:
+            # cloudinary.config() will automatically use CLOUDINARY_URL if set in the environment.
+            # It also accepts individual parameters if CLOUDINARY_URL is not set but others are.
+            cloudinary.config(secure=True) 
+            
+            # Verify that the configuration was successful by checking if cloud_name is now set
+            if cloudinary.config().cloud_name:
+                print(f"Cloudinary configured successfully. Cloud Name: {cloudinary.config().cloud_name}")
+                STORAGES["default"] = {
+                    "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+                }
+                print("STORAGES[\"default\"] set to MediaCloudinaryStorage.")
+            else:
+                print("CRITICAL: cloudinary.config() was called, but cloud_name is still not set. CLOUDINARY_URL might be malformed or not picked up.")
+        except Exception as e:
+            print(f"CRITICAL: Error during Cloudinary configuration or verification: {e}")
+    
     elif 'AWS_ACCESS_KEY_ID' in os.environ:
         # AWS S3 configuration
         AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
