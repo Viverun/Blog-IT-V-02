@@ -44,7 +44,36 @@ fi
 # Python path and module import check
 echo "--- Python Path and Module Import Check ---"
 python -c "import sys; print('sys.path:', sys.path); import cloudinary_storage; print('cloudinary_storage imported successfully')" || echo "Failed to import cloudinary_storage directly"
-echo "--- End Python Path and Module Import Check ---"
+
+# Check Cloudinary configuration
+echo "--- Checking Cloudinary Configuration ---"
+python -c "
+import os
+print('CLOUDINARY_URL environment variable exists:', 'CLOUDINARY_URL' in os.environ)
+if 'CLOUDINARY_URL' in os.environ:
+    url = os.environ.get('CLOUDINARY_URL')
+    # Mask the URL for security
+    if url and len(url) > 20:
+        masked_url = url[:15] + '...' + url[-5:]
+        print('CLOUDINARY_URL value (masked):', masked_url)
+    else:
+        print('CLOUDINARY_URL is set but appears to be invalid')
+else:
+    print('Individual Cloudinary variables:')
+    print('  CLOUDINARY_CLOUD_NAME exists:', 'CLOUDINARY_CLOUD_NAME' in os.environ)
+    print('  CLOUDINARY_API_KEY exists:', 'CLOUDINARY_API_KEY' in os.environ)
+    print('  CLOUDINARY_API_SECRET exists:', 'CLOUDINARY_API_SECRET' in os.environ)
+print('---')
+" || echo "Failed to check Cloudinary configuration"
+echo "--- End Cloudinary Configuration Check ---"
+
+# Explicitly set the Django settings module
+export DJANGO_SETTINGS_MODULE=DJANGO_PROJECT.settings
+
+# List Django management commands for debugging
+echo "--- Listing Django Management Commands ---"
+python $MANAGE_PATH
+echo "--- End Listing Django Management Commands ---"
 
 # Collect static files
 echo "Attempting to collect static files with: python $MANAGE_PATH collectstatic --no-input"
