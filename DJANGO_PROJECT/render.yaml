@@ -5,7 +5,7 @@ services:
     region: oregon # Use the region closest to your users
     plan: free # Use free tier
     buildCommand: ./build.sh
-    startCommand: cd DJANGO_PROJECT && gunicorn DJANGO_PROJECT.wsgi:application
+    startCommand: gunicorn DJANGO_PROJECT.wsgi:application --chdir DJANGO_PROJECT
     autoDeploy: true
     healthCheckPath: /
     envVars:
