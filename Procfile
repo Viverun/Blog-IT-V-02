@@ -1,0 +1,1 @@
+web: cd DJANGO_PROJECT && gunicorn DJANGO_PROJECT.wsgi:application
