@@ -44,13 +44,18 @@ def user_profile(request, username):
 @login_required
 def profile(request):
     if request.method == 'POST':
+        # Check if form was posted with multipart encoding
+        if not request.content_type or not request.content_type.startswith('multipart/form-data'):
+            messages.error(request, "Form must be submitted with file upload support. Please try again.")
+            return redirect('profile')
+        
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
 
         if u_form.is_valid() and p_form.is_valid():
             try:
+                # Save user form
                 u_form.save()
-                profile = p_form.save(commit=False)
                 
                 # Check if there's a file upload
                 if 'image' in request.FILES:
@@ -69,8 +74,14 @@ def profile(request):
                         raise ValueError(f"Invalid file type. Only {', '.join(valid_extensions)} are supported.")
                     
                     # Log information about the uploaded file
-                    print(f"File upload validated: {image_file.name}, Size: {image_file.size} bytes, Type: {image_file.content_type}")                # Save the profile
-                profile.save()
+                    print(f"File upload validated: {image_file.name}, Size: {image_file.size} bytes, Type: {image_file.content_type}")
+                      # Check if we're in production mode with cloud storage
+                    from django.conf import settings
+                    if not settings.DEBUG and 'cloudinary' in settings.INSTALLED_APPS:
+                        print("Using cloud storage (Cloudinary) for profile image")
+                
+                # Now save the profile - this will trigger the save method in the Profile model
+                p_form.save()
                 
                 messages.success(request, 'Your profile has been updated successfully!')
                 from django.urls import reverse

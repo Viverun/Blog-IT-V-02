@@ -3,18 +3,10 @@ from django.contrib.auth.models import User
 from PIL import Image
 import os
 
-# Check if Cloudinary is installed and configured
-try:
-    from cloudinary.models import CloudinaryField
-    CLOUDINARY_AVAILABLE = True
-except ImportError:
-    CLOUDINARY_AVAILABLE = False
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # The ImageField works with both local storage and Cloudinary through DEFAULT_FILE_STORAGE
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-    bio = models.TextField(default='', blank=True)
+    bio = models.TextField(default='', blank=True)  # Added bio field with default empty string
     join_date = models.DateTimeField(auto_now_add=True, null=True)
     twitter_url = models.URLField(max_length=200, blank=True, null=True)
     linkedin_url = models.URLField(max_length=200, blank=True, null=True)

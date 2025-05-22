@@ -78,6 +78,9 @@ urlpatterns = [
     path('summernote/', include('django_summernote.urls')),
 ]
 
-# Serve media files in development
+# Always serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# In production, media files are served via Cloudinary URLs automatically
+else:
+    print("Running in production mode - media files will be served by Cloudinary or cloud storage")

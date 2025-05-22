@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'django_summernote',
+    'cloudinary_storage',  # Add cloudinary_storage to all environments
+    'cloudinary',  # Add cloudinary to all environments
     # 'mcp_server',  # Add the mcp_server app # Removed as MCP server functionality is being decommissioned
 ]
 
@@ -161,45 +163,34 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# WhiteNoise configuration for static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 # Media files configuration
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# Storage configuration for Django 4.0+
+# Default storage configuration for development
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # For production media file storage
 if not DEBUG:
     # Check for Cloudinary configuration
     if 'CLOUDINARY_URL' in os.environ:
-        INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
-        
-        # Cloudinary settings
-        CLOUDINARY_STORAGE = {
-            'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
-            'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
-            'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
-        }
-        
-        # Use Cloudinary for media files in production
-        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# For production media file storage
-if not DEBUG:
-    # Use cloudinary or AWS S3 if available in environment
-    if 'CLOUDINARY_URL' in os.environ:
-        import cloudinary
-        import cloudinary.uploader
-        import cloudinary.api
-        
-        # Cloudinary config from environment
+        # Cloudinary settings from environment URL
         CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
         
-        # Add Cloudinary to installed apps
-        INSTALLED_APPS += ['cloudinary']
+        # Use Cloudinary for media files in production (Django 4.0+ format)
+        STORAGES["default"] = {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        }
         
-        # Cloudinary storage settings
-        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+        print("Cloudinary configured for media storage")
     elif 'AWS_ACCESS_KEY_ID' in os.environ:
         # AWS S3 configuration
         AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -209,8 +200,10 @@ if not DEBUG:
         AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
         AWS_DEFAULT_ACL = 'public-read'
         
-        # Static and media file storage
-        DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+        # Use S3 for media files (Django 4.0+ format)
+        STORAGES["default"] = {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
