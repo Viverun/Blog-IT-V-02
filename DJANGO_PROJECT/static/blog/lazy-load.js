@@ -1,50 +1,30 @@
-// Lazy loading of images for better mobile performance
+// Modified lazy loading - No opacity animations, immediate content visibility
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if the browser supports IntersectionObserver
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                // If the image is in the viewport
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    
-                    // Replace the src with the data-src
-                    if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                        
-                        // Add a loading animation
-                        img.classList.add('loading');
-                        
-                        img.onload = () => {
-                            img.classList.remove('loading');
-                            img.classList.add('loaded');
-                        };
-                    }
-                    
-                    // Replace srcset if available
-                    if (img.dataset.srcset) {
-                        img.srcset = img.dataset.srcset;
-                    }
-                    
-                    // Once loaded, stop watching this element
-                    observer.unobserve(img);
-                }
-            });
-        }, {
-            // Options: only load when image is 100px from viewport
-            rootMargin: '100px 0px'
-        });
+    // Immediately show all images to prevent content fading
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        // Replace the src with the data-src immediately
+        if (img.dataset.src) {
+            img.src = img.dataset.src;
+        }
         
-        // Target all images with data-src attribute
-        document.querySelectorAll('img[data-src]').forEach(img => {
-            imageObserver.observe(img);
-        });
+        // Replace srcset if available
+        if (img.dataset.srcset) {
+            img.srcset = img.dataset.srcset;
+        }
         
-        // Convert all img tags to lazyload
-        document.querySelectorAll('img:not([data-src])').forEach(img => {
-            if (!img.classList.contains('profile-image')) {  // Skip profile images
-                // Save the original source
-                img.dataset.src = img.src;
+        // Make sure image is visible
+        img.style.opacity = '1';
+        img.style.visibility = 'visible';
+    });
+    
+    // Regular images too
+    document.querySelectorAll('img:not([data-src])').forEach(img => {
+        img.style.opacity = '1';
+        img.style.visibility = 'visible';
+    });
+    
+    console.log('Lazy loading disabled - all images loaded immediately');
+});
                 
                 // Set a low-quality placeholder if not already set
                 // Only replace the src if we're on slow connections

@@ -8,23 +8,11 @@
     opacity: 1 !important;
     visibility: visible !important;
     min-height: 50px;
-    display: block !important; /* Ensure display is always block */
-    transform: none !important; /* Prevent transform animations */
-    transition: none !important; /* Disable all transitions */
-    animation: none !important; /* Disable all animations */
 }
 
-/* Make sure ALL content doesn't disappear */
-.content-section *,
-article,
-section,
-.container *,
-main *,
-body * {
+/* Make sure content doesn't disappear during transitions */
+.content-section * {
     visibility: visible !important;
-    opacity: 1 !important;
-    animation: none !important;
-    transition: none !important;
 }
 
 /* Ensure content-section has proper display properties */
@@ -41,14 +29,4 @@ main .row .col-lg-12 .content-section {
         animation: none !important;
         transition: none !important;
     }
-}
-
-/* Aggressive override for any elements that might fade */
-[class*="fade"],
-[class*="animate"],
-[class*="transition"] {
-    opacity: 1 !important;
-    visibility: visible !important;
-    animation: none !important;
-    transition: none !important;
 }

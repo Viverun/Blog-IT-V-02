@@ -63,7 +63,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'users.middleware.DynamicSiteMiddleware',  # Add our custom middleware
-    'blog.middleware.ContentVisibilityMiddleware',  # Force content visibility
 ]
 
 ROOT_URLCONF = 'DJANGO_PROJECT.urls'

@@ -12,11 +12,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">    <!-- Custom CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
-    <!-- Force visibility CSS - no animations -->
-    <link rel="stylesheet" type="text/css" href="{% static 'blog/no-animations.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'blog/content-fix.css' %}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
@@ -682,11 +680,10 @@
     <script src="{% static 'blog/mobile-detector.js' %}"></script>
 
     <!-- Navbar scroll behavior -->
-    <script src="{% static 'blog/navbar.js' %}"></script>    <!-- Content visibility script (desktop only) -->
+    <script src="{% static 'blog/navbar.js' %}"></script>
+
+    <!-- Content visibility script (desktop only) -->
     <script src="{% static 'blog/content-visibility.js' %}"></script>
-    
-    <!-- Debug visibility script - will log and prevent elements from becoming invisible -->
-    <script src="{% static 'blog/visibility-debug.js' %}"></script>
 
     <!-- Other head elements -->
     {% block head_extra %}{% endblock %}
