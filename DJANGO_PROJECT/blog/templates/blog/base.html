@@ -680,10 +680,11 @@
     <script src="{% static 'blog/mobile-detector.js' %}"></script>
 
     <!-- Navbar scroll behavior -->
-    <script src="{% static 'blog/navbar.js' %}"></script>
-
-    <!-- Content visibility script (desktop only) -->
+    <script src="{% static 'blog/navbar.js' %}"></script>    <!-- Content visibility script (desktop only) -->
     <script src="{% static 'blog/content-visibility.js' %}"></script>
+    
+    <!-- Debug visibility script - will log and prevent elements from becoming invisible -->
+    <script src="{% static 'blog/visibility-debug.js' %}"></script>
 
     <!-- Other head elements -->
     {% block head_extra %}{% endblock %}
