@@ -83,6 +83,15 @@ If profile pictures are not updating after deployment:
    - Sometimes browser caching can prevent updated images from showing
    - Try a hard refresh (Ctrl+F5) or clear your browser cache
 
+6. **Default Profile Image**
+   - The application is configured to automatically upload the default profile image (`default.jpg`) to Cloudinary during startup
+   - If you're still seeing issues with the default profile picture, run `python manage.py ensure_default_profile_image` after deployment
+   - Alternatively, run the `post_deploy.sh` script to handle this automatically
+   
+7. **Manual Default Image Upload**
+   - If automated uploads fail, you can manually upload a default image to Cloudinary
+   - Name it exactly `default.jpg` and upload it to the `media` folder in your Cloudinary account
+
 ## Common Issues and Solutions
 
 ### "Unknown API key API_KEY" Error

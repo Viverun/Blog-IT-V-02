@@ -11,15 +11,17 @@ CLOUDINARY_AVAILABLE = False
 MediaCloudinaryStorage = None
 if importlib.util.find_spec("cloudinary") and importlib.util.find_spec("cloudinary_storage"):
     try:
-        # We don't need CloudinaryField model import directly for storage backend check
-        # from cloudinary.models import CloudinaryField 
         from cloudinary_storage.storage import MediaCloudinaryStorage
         CLOUDINARY_AVAILABLE = True
     except ImportError:
-        # This case should ideally not be hit if find_spec passed, but as a safeguard:
         CLOUDINARY_AVAILABLE = False 
         MediaCloudinaryStorage = None
 
+CLOUDINARY_DIRECT_AVAILABLE = False
+if importlib.util.find_spec("cloudinary"):
+    CLOUDINARY_DIRECT_AVAILABLE = True
+
+# Try to import cloudinary for direct API access in the ensure_default_image method
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # The ImageField works with both local storage and Cloudinary through DEFAULT_FILE_STORAGE
@@ -29,6 +31,31 @@ class Profile(models.Model):
     twitter_url = models.URLField(max_length=200, blank=True, null=True)
     linkedin_url = models.URLField(max_length=200, blank=True, null=True)
     github_url = models.URLField(max_length=200, blank=True, null=True)
+
+    @classmethod
+    def ensure_default_image(cls):
+        """Ensures the default profile image exists in the current storage backend."""
+        # Use CLOUDINARY_AVAILABLE for checking if cloudinary_storage is in use
+        if not django_settings.DEBUG and CLOUDINARY_AVAILABLE:
+            # Check if default.jpg exists in storage
+            if not current_default_storage.exists('default.jpg'):
+                print("[PROFILE_MODEL] Default image doesn't exist in storage, trying to upload it")
+                
+                # Try to upload the default image from local media
+                default_image_path = os.path.join(django_settings.BASE_DIR, 'media', 'default.jpg')
+                
+                if os.path.exists(default_image_path):
+                    try:
+                        with open(default_image_path, 'rb') as f:
+                            from django.core.files.base import ContentFile # Ensure ContentFile is used
+                            current_default_storage.save('default.jpg', ContentFile(f.read()))
+                        print("[PROFILE_MODEL] Default image uploaded to storage successfully")
+                    except Exception as e:
+                        print(f"[PROFILE_MODEL] Error uploading default image to storage: {e}")
+                else:
+                    print(f"[PROFILE_MODEL] Default image not found at {default_image_path}")
+            else:
+                print("[PROFILE_MODEL] Default image already exists in storage")
 
     def __str__(self):
         return f"{self.user.username} Profile"
