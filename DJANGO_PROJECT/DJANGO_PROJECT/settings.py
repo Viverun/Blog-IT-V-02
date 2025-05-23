@@ -23,7 +23,17 @@ elif not os.environ.get('RENDER', ''): # Only print warning if not on Render and
 
 # --- Core Settings ---
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-dev-only-*v3^895-_e&e*^ud#$4^^=#(x_ta+vd0usks3nr0(qwi@2kiu$')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY and DEBUG:
+    # Only use a fallback key in DEBUG mode
+    SECRET_KEY = 'django-insecure-dev-only-key-not-for-production'
+    print("WARNING: Using insecure development SECRET_KEY. Set DJANGO_SECRET_KEY environment variable in production.")
+elif not SECRET_KEY:
+    # Exit if no SECRET_KEY in production
+    import sys
+    print("ERROR: No DJANGO_SECRET_KEY environment variable set in production mode.")
+    print("Please set a strong, unique secret key as an environment variable.")
+    sys.exit(1)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Robust boolean check for DEBUG from environment variable
@@ -251,17 +261,17 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Default, good for most 
 
 
 # --- Email Configuration ---
-# For production, use environment variables for sensitive email settings
-EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT', 587))
+# All email settings should come from environment variables in production
+EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST')
+EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'amswars5559@gmail.com') # Your email
-# IMPORTANT: For Gmail, use an "App Password" if 2FA is enabled. Store it securely.
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') # Set this in Render's env variables!
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# IMPORTANT: For Gmail, use an "App Password" if 2FA is enabled
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-DEFAULT_FROM_EMAIL = f"Blog-It <{EMAIL_HOST_USER}>"
-SERVER_EMAIL = EMAIL_HOST_USER # For server error notifications
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL') or (f"Blog-It <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else None)
+SERVER_EMAIL = EMAIL_HOST_USER if EMAIL_HOST_USER else None # For server error notifications
 EMAIL_SUBJECT_PREFIX = '[Blog-It] '
 
 if not EMAIL_HOST_PASSWORD and not DEBUG and EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':

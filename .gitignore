@@ -2,31 +2,63 @@
 __pycache__/
 *.py[cod]
 *.so
+*.pyo
+*.pyd
+.Python
+*.pyc
 
 # Django
 *.log
 db.sqlite3
+db.sqlite3-journal
 media/
 staticfiles/
 *.mo
+local_settings.py
 
 # Environment
 .env
+.env.local
+.env.*
+!.env.example
 venv/
 env/
 ENV/
 virtualenv/
 myenv/
+.python-version
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# Package management
+*.lock
+pip-log.txt
+uv.lock
+
+# Coverage and test
+.coverage
+.tox/
+.pytest_cache/
+htmlcov/
+coverage.xml
+*.cover
 
 # Other
 *.DS_Store
 debug.log
+*.bak
+*.tmp
+*~
 
 # Windows specific
 *:Zone.Identifier
+Thumbs.db
+ehthumbs.db
+Desktop.ini

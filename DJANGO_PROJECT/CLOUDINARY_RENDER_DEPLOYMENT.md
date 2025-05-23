@@ -16,7 +16,7 @@ When deploying to Render, you need to set the following environment variables in
 
 **Option 1: Single Cloudinary URL (RECOMMENDED)**
 - `CLOUDINARY_URL` - In the format: `cloudinary://API_KEY:API_SECRET@CLOUD_NAME`
-  - For example: `cloudinary://262439613689484:d4s8L2KxLy6klpUBUijxITtZLSY@dxzkqfvdw`
+  - For example: `cloudinary://123456789012345:abcdefghijklmnopqrstuv@example-cloud`
 
 **Option 2: Individual Cloudinary Credentials**
 - `CLOUDINARY_CLOUD_NAME` - Your Cloudinary cloud name
