@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-f
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Robust boolean check for DEBUG from environment variable
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 't')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 't')
 
 # --- Allowed Hosts ---
 ALLOWED_HOSTS = []
