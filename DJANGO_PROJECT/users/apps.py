@@ -7,7 +7,8 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-        import users.signals
+        # Import signals to ensure they are connected
+        from . import signals  # noqa: F401
         
         # Only run once when the app is ready, not during Django's auto-reload cycles
         if not os.environ.get('DJANGO_RELOADING'):
@@ -17,4 +18,4 @@ class UsersConfig(AppConfig):
                 from users.models import Profile
                 Profile.ensure_default_image()
             except Exception as e:
-                print(f"Error ensuring default profile image: {e}")
+                print("Error ensuring default profile image: {}".format(e))

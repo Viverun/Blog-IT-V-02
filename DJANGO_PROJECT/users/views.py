@@ -72,10 +72,11 @@ def profile(request):
                     ext = os.path.splitext(image_file.name)[1].lower()
                     if ext not in valid_extensions:
                         raise ValueError(f"Invalid file type. Only {', '.join(valid_extensions)} are supported.")
+                      # Log information about the uploaded file
+                    print("File upload validated: {}, Size: {} bytes, Type: {}".format(
+                        image_file.name, image_file.size, image_file.content_type))
                     
-                    # Log information about the uploaded file
-                    print(f"File upload validated: {image_file.name}, Size: {image_file.size} bytes, Type: {image_file.content_type}")
-                      # Check if we're in production mode with cloud storage
+                    # Check if we're in production mode with cloud storage
                     from django.conf import settings
                     if not settings.DEBUG and 'cloudinary' in settings.INSTALLED_APPS:
                         print("Using cloud storage (Cloudinary) for profile image")

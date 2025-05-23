@@ -120,11 +120,11 @@ DATABASES = {
         conn_health_checks=True,
         # SSL is typically required for production PostgreSQL databases
         # On Render, DATABASE_URL usually includes sslmode=require if needed.
-        # If not, set ssl_require=True if not DEBUG.
-        ssl_require=(not DEBUG and os.environ.get('DATABASE_URL', '').startswith('postgres'))
+        # If not, set ssl_require=True if not DEBUG and DATABASE_URL is set.
+        ssl_require=(not DEBUG and os.environ.get('DATABASE_URL', '').startswith('postgres')) if os.environ.get('DATABASE_URL') else False
     )
 }
-print(f"INFO: Database Engine = {DATABASES['default']['ENGINE']}")
+print("INFO: Database Engine = {}".format(DATABASES.get('default', {}).get('ENGINE', 'unknown')))
 
 
 # --- Password validation ---
@@ -146,9 +146,6 @@ USE_TZ = True
 
 
 # --- Cloudinary Configuration ---
-# django-cloudinary-storage will automatically pick up CLOUDINARY_URL from env variables.
-# Or, it will use CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET if set.
-# This CLOUDINARY_STORAGE dict is for additional options.
 CLOUDINARY_STORAGE = {
     'SECURE': True,  # Always serve images over HTTPS
     'PREFIX': 'media', # Optional: All media files will be uploaded to a 'media/' folder in Cloudinary
@@ -165,42 +162,48 @@ if not DEBUG:
     print("INFO: Production mode (DEBUG=False). Configuring cloud storage for media files.")
     cloudinary_url_env = os.environ.get("CLOUDINARY_URL")
     cloudinary_name_env = os.environ.get("CLOUDINARY_CLOUD_NAME")
-
+    
+    # Extra step: If CLOUDINARY_URL exists, parse it and set individual environment variables for backup
+    if cloudinary_url_env:
+        import re
+        pattern = r"cloudinary://([^:]+):([^@]+)@([^/]+)"
+        match = re.match(pattern, cloudinary_url_env)
+        if match:
+            if not os.environ.get("CLOUDINARY_API_KEY"):
+                os.environ["CLOUDINARY_API_KEY"] = match.group(1)
+            if not os.environ.get("CLOUDINARY_API_SECRET"):
+                os.environ["CLOUDINARY_API_SECRET"] = match.group(2)
+            if not os.environ.get("CLOUDINARY_CLOUD_NAME"):
+                os.environ["CLOUDINARY_CLOUD_NAME"] = match.group(3)
+            print("INFO: Parsed CLOUDINARY_URL into individual environment variables for redundancy.")
+    
     if cloudinary_url_env or (cloudinary_name_env and os.environ.get("CLOUDINARY_API_KEY")):
         # If CLOUDINARY_URL is set, it takes precedence and django-cloudinary-storage uses it
         # to configure the cloudinary SDK.
         # If individual CLOUDINARY_CLOUD_NAME, API_KEY, API_SECRET are set, it uses those.
         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-        print("INFO: Cloudinary configured as the default media storage.")        # Example check that Cloudinary SDK *could* be configured (actual config happens inside storage backend)
+        print("INFO: Cloudinary configured as the default media storage.")
+        # Example check that Cloudinary SDK *could* be configured (actual config happens inside storage backend)
         try:
-            # Note: django-cloudinary-storage does the actual config when needed.
-            # This is just a proactive check that creds *might* be available to the core SDK.
-            if cloudinary_url_env:            # Use cloudinary.config() to configure the SDK
+            import cloudinary
+            # Always explicitly configure cloudinary SDK for consistent behavior
+            if os.environ.get("CLOUDINARY_CLOUD_NAME") and os.environ.get("CLOUDINARY_API_KEY") and os.environ.get("CLOUDINARY_API_SECRET"):
+                cloudinary.config(
+                    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+                    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+                    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+                    secure=True
+                )
+                print("INFO: Cloudinary SDK configured from individual environment variables.")
+            elif cloudinary_url_env:
                 cloudinary.config(url=cloudinary_url_env)
                 print("INFO: Cloudinary SDK configured from CLOUDINARY_URL environment variable.")
             else:
-                # Simple config check without using CloudinaryConfig
-                cloudinary.config(
-                    cloud_name=cloudinary_name_env,
-                    api_key=os.environ.get("CLOUDINARY_API_KEY"),
-                    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
-                )
-                print(f"INFO: Cloudinary SDK check indicates configuration is available.")
+                print("WARNING: Could not configure Cloudinary SDK directly. Will rely on django-cloudinary-storage.")
         except Exception as e:
-            print(f"WARNING: Error during preliminary Cloudinary config check: {e}. Uploads may fail.")
+            print("WARNING: Error during preliminary Cloudinary config check: {}. Uploads may fail.".format(e))
 
-    # Optional S3 fallback logic (uncomment and configure if needed)
-    # elif 'AWS_ACCESS_KEY_ID' in os.environ:
-    #     if 'storages' not in INSTALLED_APPS:
-    #         INSTALLED_APPS.append('storages') # Ensure 'storages' (django-storages) is installed
-    #     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    #     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    #     AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
-    #     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
-    #     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-    #     AWS_DEFAULT_ACL = 'public-read' # Or None for private access
-    #     # AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY will be picked from env by boto3
-    #     print("INFO: AWS S3 configured as the default media storage.")
+   
     else:
         print("WARNING: In PRODUCTION (DEBUG=False), but no Cloudinary (or S3) credentials found in env variables.")
         print("Defaulting to FileSystemStorage for media. THIS IS NOT RECOMMENDED FOR RENDER and can lead to data loss.")
